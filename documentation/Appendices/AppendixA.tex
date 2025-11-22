@@ -1,0 +1,56 @@
+% Appendix A
+\chapter{Planificación del Proyecto}
+\label{AppendixA}
+
+A continuación se presenta la tabla detallada de planificación del proyecto, que incluye todas las tareas necesarias para completar el trabajo desde la inicialización del repositorio hasta la presentación final.
+
+\begin{table}[h]
+\centering
+\caption{Planificación del Proyecto}
+\label{tab:planificacion1}
+
+\begin{adjustbox}{max width=\textwidth}
+\footnotesize
+\begin{tabular}{p{3.3cm} p{9cm} p{1.7cm} p{1.5cm}}
+\toprule
+\textbf{Título} & \textbf{Descripción} & \textbf{Responsable} & \textbf{Estado} \\
+\midrule
+
+Inicializar cookiecutter & Ejecutar \texttt{cookiecutter-data-science} para generar la estructura base del proyecto. & Abril & Completado \\
+Configurar entorno Conda & Crear entorno \texttt{product\_tagger} e instalar dependencias. & Abril & Completado \\
+Crear repositorio GitHub & Crear repositorio, subir estructura inicial, conectar con VSCode. & Abril & Completado \\
+Definir proyecto final & Acordar que el proyecto será un sistema Product Tagger basado en Vision Transformers. & Equipo & Completado \\
+Definir Business Case & Documentar problema de negocio, costos y beneficios. & Abril & En Progreso \\
+Obtención de Datos & Implementar descarga automática del dataset desde \texttt{KaggleHub}. & Abril & En progreso \\
+EDA & Explorar \texttt{styles.csv}, distribución de atributos y ejemplos de imágenes. & XX & Pendiente \\
+Definir atributos objetivo & Seleccionar atributos a predecir. & XX & Pendiente \\
+Limpieza del CSV & Corregir faltantes y normalizar strings. & XX & Pendiente \\
+Unir imágenes con CSV & Crear columna \texttt{image\_path} y validar archivos. & XX & Pendiente \\
+Generar dataset final & Guardar CSV procesado en \texttt{data/processed}. & XX & Pendiente \\
+Train/Val/Test Split & Crear particiones estratificadas. & XX & Pendiente \\
+Implementar PyTorch Dataset & Construir clase Dataset para imágenes y etiquetas. & XX & Pendiente \\
+Implementar augmentations & Agregar normalización, resize, flips y transforms. & XX & Pendiente \\
+Cargar Vision Transformer & Cargar ViT/DeiT preentrenado y adaptar classifier. & XX & Pendiente \\
+Pipeline de entrenamiento & Entrenar ViT con optimizer, scheduler y early stopping. & XX & Pendiente \\
+Registrar métricas & Guardar loss, accuracy, F1 y mAP por época. & XX & Pendiente \\
+Evaluar modelo & Evaluar rendimiento sobre test set. & XX & Pendiente \\
+Visualizar resultados & Graficar curvas, métricas y matriz de confusión. & XX & Pendiente \\
+Ejemplos de predicción & Mostrar aciertos y errores. & XX & Pendiente \\
+Guardar modelo entrenado & Exportar modelo final a \texttt{models/}. & XX & Pendiente \\
+Implementar CLI & Script Typer de inferencia para imágenes nuevas. & XX & Pendiente \\
+Escribir README & Instrucciones de instalación, entrenamiento e inferencia. & XX & Pendiente \\
+Redactar Objetivo & Escribir objetivo del proyecto en el informe. & XX & Pendiente \\
+Redactar Arquitectura & Diagramar y explicar el pipeline. & XX & Pendiente \\
+Redactar Implementación técnica & Detallar módulos y diseño del sistema. & XX & Pendiente \\
+Redactar Evaluación & Explicar métricas y análisis de resultados. & XX & Pendiente \\
+Redactar Resultados & Incluir visualizaciones y análisis final. & XX & Pendiente \\
+Redactar Conclusiones & Limitaciones y líneas futuras. & XX & Pendiente \\
+Preparar presentación & Diapositivas y narrativa final. & XX & Pendiente \\
+Practicar presentación & Ensayo del equipo. & XX & Pendiente \\
+Entrega final código & Limpiar repo y hacer tagging final. & XX & Pendiente \\
+Entrega final PDF & Compilar y entregar memoria final. & XX & Pendiente \\
+
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table}

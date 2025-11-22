@@ -1,0 +1,69 @@
+% Chapter 1
+
+\chapter{Introducción general}
+\label{Chapter1}
+\label{IntroGeneral}
+
+El presente capítulo introduce el contexto general del proyecto, expone el problema que motivó su desarrollo, presenta el caso de negocio y describe los datos utilizados. Asimismo, se detallan los objetivos del trabajo y su alcance, estableciendo el marco conceptual necesario para comprender las decisiones técnicas y metodológicas que se desarrollan en los capítulos posteriores.
+
+%----------------------------------------------------------------------------------------
+\section{Contexto y motivación}
+
+El crecimiento del comercio electrónico y la disponibilidad masiva de catálogos digitales han incrementado la necesidad de organizar y clasificar grandes volúmenes de imágenes de productos. En este escenario, la automatización del etiquetado visual se ha convertido en una herramienta fundamental para mejorar la eficiencia operativa y garantizar la consistencia en la gestión de catálogos.
+
+El proyecto desarrollado surgió a partir de esta necesidad: se implementó un sistema de etiquetado automático de productos basado en modelos de visión por computadora. Dicho sistema permitió reducir la dependencia del etiquetado manual, disminuir errores humanos y acelerar el procesamiento de catálogos. Esta iniciativa se orientó a evaluar la utilidad de arquitecturas modernas como los \textit{Vision Transformers} en problemas de clasificación multi-etiqueta.
+
+%----------------------------------------------------------------------------------------
+\section{Caso de negocio}
+
+El crecimiento acelerado del comercio electrónico ha generado catálogos con miles de productos que requieren actualización constante. En este contexto, la correcta clasificación y etiquetado de imágenes es un proceso crítico: determina cómo los productos se muestran, cómo se encuentran mediante búsquedas internas y cómo son recomendados por los motores de recomendación. Sin embargo, este proceso suele realizarse de manera manual, lo que introduce varias limitaciones operativas.
+
+En primer lugar, el etiquetado manual implica costos elevados en horas-hombre, particularmente en empresas que gestionan catálogos dinámicos donde ingresan cientos o miles de productos nuevos por semana. En segundo lugar, este proceso presenta altos niveles de inconsistencia debido a la subjetividad de los operadores: productos similares pueden recibir etiquetas distintas o incompletas, lo que perjudica la calidad del catálogo. Además, el tiempo requerido para clasificar grandes volúmenes genera cuellos de botella que ralentizan el lanzamiento de nuevos productos.
+
+Las consecuencias de un etiquetado deficiente se reflejan en múltiples áreas del negocio. Un producto mal clasificado puede no aparecer en las búsquedas relevantes, reducir su tasa de conversión o ser excluido de sistemas automáticos de recomendación, impactando directamente en ventas. Asimismo, un catálogo inconsistente genera fricción en la navegación del usuario, lo que disminuye la satisfacción y deteriora la percepción de calidad del sitio.
+
+En este contexto, resulta necesario contar con un sistema automático capaz de identificar atributos visuales de manera rápida, coherente y escalable. El presente proyecto se enmarca en esta problemática, evaluando la capacidad de modelos basados en \textit{Vision Transformers} para realizar un etiquetado automático y confiable de productos de moda a partir de sus imágenes.
+
+%----------------------------------------------------------------------------------------
+\section{Propuesta de valor}
+
+El sistema desarrollado busca reemplazar o complementar el etiquetado manual mediante un modelo de visión por computadora capaz de asignar automáticamente atributos clave como categoría, tipo, color y género del producto. Esta automatización agrega valor en distintos niveles:
+
+\begin{itemize}
+    \item \textbf{Reducción de costos operativos:} Disminuye la necesidad de intervención humana, especialmente en etapas iniciales de carga masiva de catálogo.
+    \item \textbf{Consistencia y estandarización:} El modelo aplica criterios homogéneos sin variación entre operadores, reduciendo errores y ambigüedades.
+    \item \textbf{Mayor velocidad de procesamiento:} La clasificación automática permite acelerar el tiempo desde la recepción del producto hasta su publicación en el catálogo.
+    \item \textbf{Mejor experiencia de usuario:} Catálogos coherentes mejoran las búsquedas, la navegación y la relevancia de las recomendaciones.
+    \item \textbf{Escalabilidad:} El sistema puede procesar miles de imágenes sin aumentar el costo marginal, algo imposible con procesos manuales.
+\end{itemize}
+
+En conjunto, la propuesta de valor consiste en un pipeline automatizado capaz de fortalecer la calidad del catálogo digital y optimizar procesos internos, alineándose con prácticas modernas de comercio electrónico basadas en datos y automatización inteligente.
+
+%----------------------------------------------------------------------------------------
+\section{Objetivos y alcance}
+
+El proyecto tuvo como objetivo general desarrollar un sistema capaz de etiquetar automáticamente imágenes de productos de moda utilizando modelos basados en \textit{Vision Transformers}. Este sistema buscó reproducir y estandarizar el proceso de etiquetado que habitualmente se realiza de manera manual, evaluando su capacidad para predecir atributos clave del catálogo tales como categoría, tipo, color y género del producto.
+
+En términos más específicos, el trabajo se propuso:
+
+\begin{itemize}
+    \item Construir un pipeline reproducible de procesamiento de datos que incluyera la descarga, validación y limpieza del dataset original.
+    \item Implementar un modelo de clasificación multi-etiqueta basado en \textit{Vision Transformers}, adaptado a las características del dataset.
+    \item Entrenar y validar el modelo mediante particiones estratificadas, asegurando una evaluación equilibrada de las distintas clases.
+    \item Analizar el desempeño del modelo utilizando métricas estandarizadas como \textit{accuracy}, F1 y \textit{mean Average Precision} (mAP).
+    \item Examinar los errores y sesgos presentes en las predicciones, identificando limitaciones del enfoque.
+    \item Desarrollar una herramienta de inferencia que permitiera aplicar el modelo a nuevas imágenes en un entorno práctico.
+\end{itemize}
+
+El alcance del proyecto se limitó al análisis y desarrollo de un prototipo funcional entrenado sobre un dataset público. No se abordaron aspectos propios de un sistema productivo, tales como el entrenamiento continuo, la integración con plataformas de comercio electrónico, la optimización de tiempos de inferencia para altos volúmenes ni la incorporación de retroalimentación humana en el ciclo de etiquetado. Tampoco se realizaron experimentos con arquitecturas alternativas ni con técnicas de aumento extensivo de datos debido a restricciones de tiempo y recursos computacionales.
+
+A pesar de estas limitaciones, el desarrollo realizado permite demostrar la viabilidad de automatizar el etiquetado de productos mediante modelos de visión por computadora modernos, sentando las bases para futuras mejoras orientadas a escenarios reales de operación.
+
+%----------------------------------------------------------------------------------------
+\section{Datos utilizados}
+
+Para el desarrollo del sistema se utilizó el dataset público \textit{Fashion Product Images (Small)}, disponible en Kaggle\footnote{\url{https://www.kaggle.com/datasets/paramaggarwal/fashion-product-images-small}}. Este conjunto incluye más de 44.000 imágenes de productos de moda junto con un archivo tabular \texttt{styles.csv} que contiene información estructurada del catálogo.
+
+El dataset original presenta atributos como categoría general del producto, subcategoría, tipo, género, temporada y color dominante. Cada imagen está identificada mediante un \texttt{productId}, lo que permite vincularla con sus metadatos tabulares. Antes de poder utilizarse en el pipeline de entrenamiento, se aplicaron procesos de limpieza, normalización y verificación de integridad debido a la presencia de valores faltantes, clases poco representadas y rutas inconsistentes.
+
+A partir de este conjunto inicial, se construyó un dataset final que incluyó: (i) imágenes validadas y preprocesadas, (ii) atributos seleccionados para la predicción y (iii) una partición estratificada en \textit{train}, \textit{validation} y \textit{test}. Esta estructura permitió evaluar de manera rigurosa el desempeño del modelo entrenado bajo condiciones reales.
