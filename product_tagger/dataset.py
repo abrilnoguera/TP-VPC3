@@ -60,8 +60,7 @@ def download_dataset_if_needed() -> Path:
     logger.success("Dataset extracted correctly into RAW_DATA_DIR.")
     return RAW_DATA_DIR
 
-@app.command()
-def main(
+def run_dataset(
     input_csv: Path = RAW_DATA_DIR / "styles.csv",
     output_path: Path = PROCESSED_DATA_DIR / "dataset.csv",
 ):
@@ -69,16 +68,6 @@ def main(
     dataset_path = download_dataset_if_needed()
     logger.info(f"Dataset available at: {dataset_path}")
 
-    # --------------------------------------------------------------------------
-    # TODO: Replace with your real preprocessing logic
-    # --------------------------------------------------------------------------
-    logger.info("Processing dataset...")
-    for i in tqdm(range(10), total=10):
-        if i == 5:
-            logger.info("Something happened for iteration 5.")
-    logger.success("Processing dataset complete.")
-    # --------------------------------------------------------------------------
-
 
 if __name__ == "__main__":
-    app()
+    run_dataset()

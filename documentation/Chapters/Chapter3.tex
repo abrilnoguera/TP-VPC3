@@ -1,94 +1,89 @@
-\chapter{Diseño e implementación} % Main chapter title
+\chapter{Preparación y Preprocesamiento}
+\label{Chapter3}
 
-\label{Chapter3} % Change X to a consecutive number; for referencing this chapter elsewhere, use \ref{ChapterX}
+Este capítulo describe el proceso de preparación de datos realizado antes del entrenamiento del modelo. Se detalla cómo se construyeron los conjuntos de \textit{train}, \textit{validation} y \textit{test}, los pasos de preprocesamiento aplicados a las imágenes y las técnicas de \textit{data augmentation} utilizadas para mejorar la capacidad de generalización del modelo. Asimismo, se justifica la necesidad de normalizar y estandarizar las entradas de acuerdo con los requerimientos de la arquitectura \textit{Vision Transformer} seleccionada.
 
-Todos los capítulos deben comenzar con un breve párrafo introductorio que indique cuál es el contenido que se encontrará al leerlo.  La redacción sobre el contenido de la memoria debe hacerse en presente y todo lo referido al proyecto en pasado, siempre de modo impersonal.
+\section{División del dataset}
 
-\definecolor{mygreen}{rgb}{0,0.6,0}
-\definecolor{mygray}{rgb}{0.5,0.5,0.5}
-\definecolor{mymauve}{rgb}{0.58,0,0.82}
+A partir del conjunto limpio generado en la etapa de análisis exploratorio, se definió una división estratificada en tres subconjuntos: entrenamiento, validación y prueba. La estratificación se realizó tomando como variable objetivo el atributo \textit{articleType}, con el fin de preservar la proporción relativa de clases en cada partición y evitar sesgos durante el entrenamiento.
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% parámetros para configurar el formato del código en los entornos lstlisting
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\lstset{ %
-  backgroundcolor=\color{white},   % choose the background color; you must add \usepackage{color} or \usepackage{xcolor}
-  basicstyle=\footnotesize,        % the size of the fonts that are used for the code
-  breakatwhitespace=false,         % sets if automatic breaks should only happen at whitespace
-  breaklines=true,                 % sets automatic line breaking
-  captionpos=b,                    % sets the caption-position to bottom
-  commentstyle=\color{mygreen},    % comment style
-  deletekeywords={...},            % if you want to delete keywords from the given language
-  %escapeinside={\%*}{*)},          % if you want to add LaTeX within your code
-  %extendedchars=true,              % lets you use non-ASCII characters; for 8-bits encodings only, does not work with UTF-8
-  %frame=single,	                % adds a frame around the code
-  keepspaces=true,                 % keeps spaces in text, useful for keeping indentation of code (possibly needs columns=flexible)
-  keywordstyle=\color{blue},       % keyword style
-  language=[ANSI]C,                % the language of the code
-  %otherkeywords={*,...},           % if you want to add more keywords to the set
-  numbers=left,                    % where to put the line-numbers; possible values are (none, left, right)
-  numbersep=5pt,                   % how far the line-numbers are from the code
-  numberstyle=\tiny\color{mygray}, % the style that is used for the line-numbers
-  rulecolor=\color{black},         % if not set, the frame-color may be changed on line-breaks within not-black text (e.g. comments (green here))
-  showspaces=false,                % show spaces everywhere adding particular underscores; it overrides 'showstringspaces'
-  showstringspaces=false,          % underline spaces within strings only
-  showtabs=false,                  % show tabs within strings adding particular underscores
-  stepnumber=1,                    % the step between two line-numbers. If it's 1, each line will be numbered
-  stringstyle=\color{mymauve},     % string literal style
-  tabsize=2,	                   % sets default tabsize to 2 spaces
-  title=\lstname,                  % show the filename of files included with \lstinputlisting; also try caption instead of title
-  morecomment=[s]{/*}{*/}
-}
+El dataset final se dividió con los siguientes porcentajes:
 
+\begin{itemize}
+    \item \textbf{70\%} para entrenamiento.
+    \item \textbf{15\%} para validación.
+    \item \textbf{15\%} para prueba.
+\end{itemize}
 
-%----------------------------------------------------------------------------------------
-%	SECTION 1
-%----------------------------------------------------------------------------------------
-\section{Análisis del software}
- 
-La idea de esta sección es resaltar los problemas encontrados, los criterios utilizados y la justificación de las decisiones que se hayan tomado.
+La división se realizó mediante una estrategia robusta para manejar clases con baja frecuencia. Aquellos tipos de producto con menos de cinco muestras fueron agrupados en una clase adicional \textit{RARE\_CLASS} con el fin de evitar errores de estratificación. Esta técnica permitió mantener la coherencia estadística de los subconjuntos sin perder información relevante.
 
-Se puede agregar código o pseudocódigo dentro de un entorno lstlisting con el siguiente código:
+Además de los archivos \texttt{train.csv}, \texttt{val.csv} y \texttt{test.csv}, se generaron carpetas independientes con las imágenes correspondientes a cada partición, asegurando un pipeline reproducible y coherente con las buenas prácticas de \textit{cookiecutter data science}:
 
 \begin{verbatim}
-\begin{lstlisting}[caption= "un epígrafe descriptivo"]
-	las líneas de código irían aquí...
-\end{lstlisting}
+data/
+  processed/
+    images/
+      train/
+      val/
+      test/
 \end{verbatim}
 
-A modo de ejemplo, se muestra el fragmento de código \ref{cod:vControl}:
+Esta organización facilita la carga del dataset en PyTorch, reduce errores de lectura y estandariza el flujo de experimentación.
 
-\begin{lstlisting}[label=cod:vControl,caption=Pseudocódigo del lazo principal de control.]  % Start your code-block
+\section{Preprocesamiento de imágenes}
 
-#define MAX_SENSOR_NUMBER 3
-#define MAX_ALARM_NUMBER  6
-#define MAX_ACTUATOR_NUMBER 6
+El preprocesamiento se orientó a adaptar las imágenes del dataset a los requerimientos del modelo \textit{Vision Transformer}, cuya arquitectura espera entradas cuadradas y normalizadas. A partir del análisis realizado en el capítulo de EDA, se observaron las siguientes características relevantes:
 
-uint32_t sensorValue[MAX_SENSOR_NUMBER];		
-FunctionalState alarmControl[MAX_ALARM_NUMBER];	//ENABLE or DISABLE
-state_t alarmState[MAX_ALARM_NUMBER];						//ON or OFF
-state_t actuatorState[MAX_ACTUATOR_NUMBER];			//ON or OFF
+\begin{itemize}
+    \item Todas las imágenes poseen tamaño uniforme de \textbf{60×80 píxeles}, inferior al requerido por ViT.
+    \item La relación de aspecto es constante, lo que facilita el escalado sin distorsión.
+    \item La calidad de las imágenes (luminosidad, contraste, nivel de enfoque y saturación) es adecuada para un modelo de clasificación supervisada, aunque con variabilidad suficiente como para beneficiar el uso de técnicas de \textit{augmentation}.
+\end{itemize}
 
-void vControl() {
+En consecuencia, se aplicaron los siguientes pasos de preprocesamiento:
 
-	initGlobalVariables();
-	
-	period = 500 ms;
-		
-	while(1) {
+\begin{enumerate}
+    \item \textbf{Redimensionamiento a 224×224 píxeles.}  
+    Este tamaño es estándar para modelos basados en Transformers y permite aprovechar pesos preentrenados en ImageNet.
 
-		ticks = xTaskGetTickCount();
-		
-		updateSensors();
-		
-		updateAlarms();
-		
-		controlActuators();
-		
-		vTaskDelayUntil(&ticks, period);
-	}
-}
-\end{lstlisting}
+    \item \textbf{Conversión a tensor y normalización.}  
+    Se aplicaron las estadísticas de ImageNet:
+    \[
+        \mu = (0.485, 0.456, 0.406), \quad
+        \sigma = (0.229, 0.224, 0.225)
+    \]
+    con el fin de estabilizar el entrenamiento y lograr compatibilidad con pesos preentrenados.
 
+    \item \textbf{Validación de integridad.}  
+    Se eliminaron imágenes corruptas o no legibles y se depuraron filas del CSV que no podían vincularse a su archivo correspondiente.
+\end{enumerate}
 
+Este pipeline garantiza que todas las imágenes de entrada cumplen el formato necesario para maximizar el desempeño del modelo.
 
+\section{Data augmentation}
+
+Dado que las imágenes del dataset son relativamente pequeñas y presentan poca diversidad visual en términos de iluminación, pose y fondo, se definió un conjunto de transformaciones destinadas a aumentar la variabilidad sintética del conjunto de entrenamiento. Esto reduce el riesgo de sobreajuste y mejora la robustez del modelo.
+
+Las transformaciones aplicadas durante el entrenamiento fueron:
+
+\begin{itemize}
+    \item \textbf{Random Horizontal Flip:} simula variaciones naturales en pose y orientación.
+    \item \textbf{Color Jitter (brillo, contraste, saturación):} incrementa la tolerancia del modelo a condiciones de iluminación heterogéneas.
+    \item \textbf{Random Rotation (±15°):} introduce pequeñas perturbaciones para mejorar la invariancia rotacional.
+    \item \textbf{Affine transformations:} ligeras modificaciones de escala o traslación, cuando aplicable.
+\end{itemize}
+
+Estas transformaciones se aplican de manera estocástica únicamente al conjunto de entrenamiento. El conjunto de validación y prueba solo recibe las transformaciones estrictamente necesarias (redimensionamiento y normalización), con el objetivo de realizar una evaluación justa y reproducible del modelo.
+
+\section{Construcción del PyTorch Dataset}
+
+Con las particiones y el preprocesamiento definidos, se implementó una clase \texttt{PyTorch Dataset} capaz de:
+
+\begin{itemize}
+    \item Cargar imágenes desde las carpetas correspondientes a cada split.
+    \item Aplicar automáticamente las transformaciones definidas para cada partición.
+    \item Mapear cada imagen hacia sus atributos objetivos codificados.
+    \item Soportar clasificación multi-etiqueta mediante vectores binarios por atributo.
+\end{itemize}
+
+Este diseño permite integrar el dataset de manera directa con el \textit{DataLoader} de PyTorch, facilitando el batching, el shuffle y la paralelización en CPU.

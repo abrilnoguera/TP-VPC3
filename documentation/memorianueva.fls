@@ -263,6 +263,9 @@ INPUT Chapters/Chapter1.aux
 INPUT ./Chapters/Chapter2.aux
 INPUT ./Chapters/Chapter2.aux
 INPUT Chapters/Chapter2.aux
+INPUT ./Chapters/Chapter3.aux
+INPUT ./Chapters/Chapter3.aux
+INPUT Chapters/Chapter3.aux
 INPUT ./Appendices/AppendixA.aux
 INPUT ./Appendices/AppendixA.aux
 INPUT Appendices/AppendixA.aux
@@ -463,6 +466,12 @@ INPUT /Users/anoguera/Library/TinyTeX/texmf-dist/fonts/vf/adobe/palatino/pplb8c.
 INPUT /Users/anoguera/Library/TinyTeX/texmf-dist/fonts/tfm/public/mathpazo/fplmb.tfm
 INPUT /Users/anoguera/Library/TinyTeX/texmf-dist/fonts/vf/adobe/palatino/pplr8c.vf
 INPUT /Users/anoguera/Library/TinyTeX/texmf-dist/fonts/tfm/public/mathpazo/fplmr.tfm
+INPUT ./Chapters/Chapter3.tex
+INPUT ./Chapters/Chapter3.tex
+OUTPUT Chapters/Chapter3.aux
+INPUT ./Chapters/Chapter3.tex
+INPUT ./Chapters/Chapter3.tex
+INPUT Chapters/Chapter3.tex
 INPUT ./Appendices/AppendixA.tex
 INPUT ./Appendices/AppendixA.tex
 OUTPUT Appendices/AppendixA.aux
@@ -485,6 +494,9 @@ INPUT Chapters/Chapter1.aux
 INPUT ./Chapters/Chapter2.aux
 INPUT ./Chapters/Chapter2.aux
 INPUT Chapters/Chapter2.aux
+INPUT ./Chapters/Chapter3.aux
+INPUT ./Chapters/Chapter3.aux
+INPUT Chapters/Chapter3.aux
 INPUT ./Appendices/AppendixA.aux
 INPUT ./Appendices/AppendixA.aux
 INPUT Appendices/AppendixA.aux
@@ -492,6 +504,8 @@ INPUT ./memorianueva.out
 INPUT ./memorianueva.out
 INPUT memorianueva.run.xml
 OUTPUT memorianueva.run.xml
+INPUT /Users/anoguera/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb
+INPUT /Users/anoguera/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb
 INPUT /Users/anoguera/Library/TinyTeX/texmf-dist/fonts/type1/urw/courier/ucrr8a.pfb
 INPUT /Users/anoguera/Library/TinyTeX/texmf-dist/fonts/type1/urw/helvetic/uhvb8a.pfb
 INPUT /Users/anoguera/Library/TinyTeX/texmf-dist/fonts/type1/urw/helvetic/uhvr8a.pfb

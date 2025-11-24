@@ -24,6 +24,14 @@ FIGURES_DIR = REPORTS_DIR / "figures"
 # Architecture
 TARGET_SIZE = (224, 224)
 
+TRAIN_SPLIT = 0.70  
+VAL_SPLIT   = 0.15     
+TEST_SPLIT  = 0.15  
+
+# Validación extra: asegurar que suman 1
+assert abs((TRAIN_SPLIT + VAL_SPLIT + TEST_SPLIT) - 1.0) < 1e-8, \
+    "La suma de TRAIN_SPLIT + VAL_SPLIT + VAL_SPLIT debe ser 1.0"
+
 # If tqdm is installed, configure loguru with tqdm.write
 # https://github.com/Delgan/loguru/issues/135
 try:
