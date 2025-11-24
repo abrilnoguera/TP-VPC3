@@ -1,184 +1,125 @@
-\chapter{Introducción específica} % Main chapter title
+\chapter{Análisis Exploratorio de Datos} % Main chapter title
 
 \label{Chapter2}
 
-%----------------------------------------------------------------------------------------
-%	SECTION 1
-%----------------------------------------------------------------------------------------
-Todos los capítulos deben comenzar con un breve párrafo introductorio que indique cuál es el contenido que se encontrará al leerlo.  La redacción sobre el contenido de la memoria debe hacerse en presente y todo lo referido al proyecto en pasado, siempre de modo impersonal.
+El presente capítulo describe el análisis exploratorio (EDA) realizado sobre el conjunto de datos utilizado para el entrenamiento del sistema de etiquetado automático de productos. El objetivo del EDA es comprender la estructura del dataset, evaluar la calidad de las imágenes, identificar patrones relevantes y detectar posibles problemas que condicionen las decisiones de preprocesamiento y modelado. A partir de este análisis se establecen los requerimientos y transformaciones necesarias para garantizar un entrenamiento adecuado del modelo basado en \textit{Vision Transformers}.
 
-\section{Estilo y convenciones}
-\label{sec:ejemplo}
+\section{Descripción general del dataset}
 
-\subsection{Uso de mayúscula inicial para los título de secciones}
-
-Si en el texto se hace alusión a diferentes partes del trabajo referirse a ellas como capítulo, sección o subsección según corresponda. Por ejemplo: ``En el capítulo \ref{Chapter1} se explica tal cosa'', o ``En la sección \ref{sec:ejemplo} se presenta lo que sea'', o ``En la subsección \ref{subsec:ejemplo} se discute otra cosa''.
-
-Cuando se quiere poner una lista tabulada, se hace así:
+El proyecto emplea el dataset público \textit{Fashion Product Images (Small)}, disponible en Kaggle, que contiene más de 44.000 imágenes de productos de moda junto con metadatos tabulares provistos en el archivo \texttt{styles.csv}. Cada imagen está asociada a un identificador único (\texttt{id}) y cuenta con atributos descriptivos como:
 
 \begin{itemize}
-	\item Este es el primer elemento de la lista.
-	\item Este es el segundo elemento de la lista.
+\item \textbf{masterCategory}: categoría general del artículo.
+\item \textbf{subCategory}: categoría específica intermedia.
+\item \textbf{articleType}: tipo concreto de producto.
+\item \textbf{gender}: público objetivo.
+\item \textbf{baseColour}, \textbf{season}, \textbf{usage}, entre otros.
 \end{itemize}
 
-Notar el uso de las mayúsculas y el punto al final de cada elemento.
+Durante el EDA se realizó una verificación de integridad del archivo tabular y una validación de la existencia y apertura de cada imagen asociada.
 
-Si se desea poner una lista numerada el formato es este:
+\section{Análisis de valores faltantes}
 
-\begin{enumerate}
-	\item Este es el primer elemento de la lista.
-	\item Este es el segundo elemento de la lista.
-\end{enumerate}
+La figura~\ref{fig:missing_values} muestra la proporción de valores faltantes por atributo. Las variables con mayor incompletitud corresponden a \texttt{usage}, \texttt{season} y \texttt{baseColour}, ninguna de las cuales forma parte de los atributos objetivo del proyecto. Los campos esenciales para la clasificación (\texttt{gender}, \texttt{masterCategory}, \texttt{subCategory} y \texttt{articleType}) no presentan valores faltantes.
 
-Notar el uso de las mayúsculas y el punto al final de cada elemento.
-
-\subsection{Este es el título de una subsección}
-\label{subsec:ejemplo}
-
-Se recomienda no utilizar \textbf{texto en negritas} en ningún párrafo, ni tampoco texto \underline{subrayado}. En cambio sí se debe utilizar \textit{texto en itálicas} para palabras en un idioma extranjero, al menos la primera vez que aparecen en el texto. En el caso de palabras que estamos inventando se deben utilizar ``comillas'', así como también para citas textuales. Por ejemplo, un \textit{digital filter} es una especie de ``selector'' que permite separar ciertos componentes armónicos en particular.
-
-La escritura debe ser impersonal. Por ejemplo, no utilizar ``el diseño del firmware lo hice de acuerdo con tal principio'', sino ``el firmware fue diseñado utilizando tal principio''. 
-
-El trabajo es algo que al momento de escribir la memoria se supone que ya está concluido, entonces todo lo que se refiera a hacer el trabajo se narra en tiempo pasado, porque es algo que ya ocurrió. Por ejemplo, "se diseñó el firmware empleando la técnica de test driven development".
-
-En cambio, la memoria es algo que está vivo cada vez que el lector la lee. Por eso transcurre siempre en tiempo presente, como por ejemplo:
-
-``En el presente capítulo se da una visión global sobre las distintas pruebas realizadas y los resultados obtenidos. Se explica el modo en que fueron llevados a cabo los test unitarios y las pruebas del sistema''.
-
-Se recomienda no utilizar una sección de glosario sino colocar la descripción de las abreviaturas como parte del mismo cuerpo del texto. Por ejemplo, RTOS (\textit{Real Time Operating System}, Sistema Operativo de Tiempo Real) o en caso de considerarlo apropiado mediante notas a pie de página.
-
-Si se desea indicar alguna página web utilizar el siguiente formato de referencias bibliográficas, dónde las referencias se detallan en la sección de bibliografía de la memoria, utilizado el formato establecido por IEEE en \citep{IEEE:citation}. Por ejemplo, ``el presente trabajo se basa en la plataforma EDU-CIAA-NXP \citep{CIAA}, la cual...''.
-
-\subsection{Figuras} 
-
-Al insertar figuras en la memoria se deben considerar determinadas pautas. Para empezar, usar siempre tipografía claramente legible. Luego, tener claro que \textbf{es incorrecto} escribir por ejemplo esto: ``El diseño elegido es un cuadrado, como se ve en la siguiente figura:''
-
-\begin{figure}[h]
+\begin{figure}[H]
 \centering
-\includegraphics[scale=.45]{./Figures/cuadradoAzul.png}
+\includegraphics[width=0.75\linewidth]{figures/missing_values.png}
+\caption{Proporción de valores faltantes en el archivo \texttt{styles.csv}.}
+\label{fig:missing_values}
 \end{figure}
 
-La forma correcta de utilizar una figura es con referencias cruzadas, por ejemplo: ``Se eligió utilizar un cuadrado azul para el logo, como puede observarse en la figura \ref{fig:cuadradoAzul}''.
+\textbf{Conclusión:} No es necesario realizar imputación compleja; el dataset es adecuado para construir las etiquetas objetivo sin modificaciones adicionales.
 
-\begin{figure}[ht]
-	\centering
-	\includegraphics[scale=.45]{./Figures/cuadradoAzul.png}
-	\caption{Ilustración del cuadrado azul que se eligió para el diseño del logo.}
-	\label{fig:cuadradoAzul}
+\section{Distribución de clases}
+
+La figura~\ref{fig:class_articleType} ilustra la distribución de clases para \texttt{articleType}. Se observa un marcado desbalance, con categorías como \textit{Tshirts}, \textit{Shirts} y \textit{Casual Shoes} concentrando una cantidad significativamente mayor de muestras respecto de categorías minoritarias.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{figures/class_distribution_articleType.png}
+\caption{Distribución de clases para \texttt{articleType}.}
+\label{fig:class_articleType}
 \end{figure}
 
-El texto de las figuras debe estar siempre en español, excepto que se decida reproducir una figura original tomada de alguna referencia. En ese caso la referencia de la cual se tomó la figura debe ser indicada en el epígrafe de la figura e incluida como una nota al pie, como se ilustra en la figura \ref{fig:palabraIngles}.
+Patrones similares se observan en \texttt{subCategory} y \texttt{masterCategory} (figuras~\ref{fig:class_subCategory} y~\ref{fig:class_masterCategory}), donde predominan \textit{Topwear}, \textit{Shoes} y \textit{Apparel}, respectivamente.
 
-\begin{figure}[htpb]
-	\centering
-	\includegraphics[scale=.3]{./Figures/word.jpeg}
-	\caption{Imagen tomada de la página oficial del procesador\protect\footnotemark.}
-	\label{fig:palabraIngles}
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{figures/class_distribution_subCategory.png}
+\caption{Distribución de clases para \texttt{subCategory}.}
+\label{fig:class_subCategory}
 \end{figure}
 
-\footnotetext{Imagen tomada de \url{https://goo.gl/images/i7C70w}}
-
-La figura y el epígrafe deben conformar una unidad cuyo significado principal pueda ser comprendido por el lector sin necesidad de leer el cuerpo central de la memoria. Para eso es necesario que el epígrafe sea todo lo detallado que corresponda y si en la figura se utilizan abreviaturas entonces aclarar su significado en el epígrafe o en la misma figura.
-
-
-
-\begin{figure}[ht]
-	\centering
-	\includegraphics[scale=.37]{./Figures/questionMark.png}
-	\caption{¿Por qué de pronto aparece esta figura?}
-	\label{fig:questionMark}
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{figures/class_distribution_masterCategory.png}
+\caption{Distribución de clases para \texttt{masterCategory}.}
+\label{fig:class_masterCategory}
 \end{figure}
 
-Nunca colocar una figura en el documento antes de hacer la primera referencia a ella, como se ilustra con la figura \ref{fig:questionMark}, porque sino el lector no comprenderá por qué de pronto aparece la figura en el documento, lo que distraerá su atención.
+En cuanto al atributo \texttt{gender}, la distribución está dominada por \textit{Men} y \textit{Women}, mientras que \textit{Boys}, \textit{Girls} y \textit{Unisex} representan una proporción menor (figura~\ref{fig:class_gender}).
 
-Otra posibilidad es utilizar el entorno \textit{subfigure} para incluir más de una figura, como se puede ver en la figura \ref{fig:three graphs}. Notar que se pueden referenciar también las figuras internas individualmente de esta manera: \ref{fig:1de3}, \ref{fig:2de3} y \ref{fig:3de3}.
- 
-\begin{figure}[!htpb]
-     \centering
-     \begin{subfigure}[b]{0.3\textwidth}
-         \centering
-         \includegraphics[width=.65\textwidth]{./Figures/questionMark}
-         \caption{Un caption.}
-         \label{fig:1de3}
-     \end{subfigure}
-     \hfill
-     \begin{subfigure}[b]{0.3\textwidth}
-         \centering
-         \includegraphics[width=.65\textwidth]{./Figures/questionMark}
-         \caption{Otro.}
-         \label{fig:2de3}
-     \end{subfigure}
-     \hfill
-     \begin{subfigure}[b]{0.3\textwidth}
-         \centering
-         \includegraphics[width=.65\textwidth]{./Figures/questionMark}
-         \caption{Y otro más.}
-         \label{fig:3de3}
-     \end{subfigure}
-        \caption{Tres gráficos simples.}
-        \label{fig:three graphs}
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{figures/class_distribution_gender.png}
+\caption{Distribución de clases para \texttt{gender}.}
+\label{fig:class_gender}
 \end{figure}
 
-El código para generar las imágenes se encuentra disponible para su reutilización en el archivo \file{Chapter2.tex}.
+\textbf{Conclusión:} El dataset presenta un fuerte desbalance de clases que puede afectar el aprendizaje del modelo. Esto justifica la aplicación posterior de estrategias como \textit{class weighting}, muestreo estratificado o técnicas de reponderación durante el entrenamiento.
 
-\subsection{Tablas}
+\section{Inspección visual de muestras}
 
-Para las tablas utilizar el mismo formato que para las figuras, sólo que el epígrafe se debe colocar arriba de la tabla, como se ilustra en la tabla \ref{tab:peces}. Observar que sólo algunas filas van con líneas visibles y notar el uso de las negritas para los encabezados.  La referencia se logra utilizando el comando \verb|\ref{<label>}| donde label debe estar definida dentro del entorno de la tabla.
+La figura~\ref{fig:random_samples} muestra una selección aleatoria de imágenes del dataset. Se observa que la mayoría de los productos están fotografiados sobre fondo blanco, correctamente centrados y con iluminación homogénea. La ausencia de fondos complejos y ruido visual simplifica el aprendizaje del modelo.
 
-\begin{verbatim}
-\begin{table}[h]
-	\centering
-	\caption[caption corto]{caption largo más descriptivo}
-	\begin{tabular}{l c c}    
-		\toprule
-		\textbf{Especie}     & \textbf{Tamaño} & \textbf{Valor}\\
-		\midrule
-		Amphiprion Ocellaris & 10 cm           & \$ 6.000 \\		
-		Hepatus Blue Tang    & 15 cm           & \$ 7.000 \\
-		Zebrasoma Xanthurus  & 12 cm           & \$ 6.800 \\
-		\bottomrule
-		\hline
-	\end{tabular}
-	\label{tab:peces}
-\end{table}
-\end{verbatim}
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{figures/random_samples.png}
+\caption{Muestras aleatorias de imágenes del dataset.}
+\label{fig:random_samples}
+\end{figure}
 
+\textbf{Conclusión:} Las condiciones controladas de captura favorecen un desempeño estable en modelos de visión profunda.
 
-\begin{table}[h]
-	\centering
-	\caption[caption corto]{caption largo más descriptivo.}
-	\begin{tabular}{l c c}    
-		\toprule
-		\textbf{Especie} 	 & \textbf{Tamaño} 		& \textbf{Valor}  \\
-		\midrule
-		Amphiprion Ocellaris & 10 cm 				& \$ 6.000 \\		
-		Hepatus Blue Tang	 & 15 cm				& \$ 7.000 \\
-		Zebrasoma Xanthurus	 & 12 cm				& \$ 6.800 \\
-		\bottomrule
-		\hline
-	\end{tabular}
-	\label{tab:peces}
-\end{table}
+\section{Variabilidad en tamaños de imagen}
 
-En cada capítulo se debe reiniciar el número de conteo de las figuras y las tablas, por ejemplo, figura 2.1 o tabla 2.1, pero no se debe reiniciar el conteo en cada sección. Por suerte la plantilla se encarga de esto por nosotros.
+El análisis de resolución reveló que todas las imágenes tienen un tamaño uniforme de \textbf{60×80 px}, con desviación estándar nula. Si bien esta consistencia elimina la necesidad de correcciones geométricas, la resolución es insuficiente para arquitecturas modernas como los \textit{Vision Transformers}, que operan con tamaños estándar de 224×224 px.
 
-\subsection{Ecuaciones}
-\label{sec:Ecuaciones}
+\textbf{Conclusión:} Es necesario reescalar todas las imágenes a 224×224 px para compatibilidad con el modelo seleccionado.
 
-Al insertar ecuaciones en la memoria dentro de un entorno \textit{equation}, éstas se numeran en forma automática  y se pueden referir al igual que como se hace con las figuras y tablas, por ejemplo ver la ecuación \ref{eq:metric}.
+\section{Análisis de calidad de imagen}
 
-\begin{equation}
-	\label{eq:metric}
-	ds^2 = c^2 dt^2 \left( \frac{d\sigma^2}{1-k\sigma^2} + \sigma^2\left[ d\theta^2 + \sin^2\theta d\phi^2 \right] \right)
-\end{equation}
-                                                        
-Para generar la ecuación \ref{eq:metric} se utilizó el siguiente código:
+Se evaluaron métricas complementarias de calidad:
 
-\begin{verbatim}
-\begin{equation}
-	\label{eq:metric}
-	ds^2 = c^2 dt^2 \left( \frac{d\sigma^2}{1-k\sigma^2} + 
-	\sigma^2\left[ d\theta^2 + 
-	\sin^2\theta d\phi^2 \right] \right)
-\end{equation}
-\end{verbatim}
+\begin{itemize}
+\item \textbf{Brillo}: valores centrados entre 200 y 230, indicando imágenes bien iluminadas.
+\item \textbf{Contraste}: niveles moderados, consistentes entre productos.
+\item \textbf{Nitidez}: varianza Laplaciana mayormente entre 500 y 4000, suficiente para distinguir bordes.
+\item \textbf{Distribución RGB}: canales balanceados sin dominancia cromática.
+\end{itemize}
+
+Estas mediciones se ilustran en la figura~\ref{fig:image_quality}.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{figures/image_quality.png}
+\caption{Análisis de brillo, contraste, nitidez y distribución de color.}
+\label{fig:image_quality}
+\end{figure}
+
+\textbf{Conclusión:} La calidad general del dataset es elevada y consistente, lo cual minimiza la necesidad de correcciones avanzadas o normalizaciones fuera del estándar habitual de redes profundas.
+
+\section{Conclusiones del EDA y su impacto en el modelado}
+
+A partir del análisis realizado, se identifican las siguientes decisiones críticas para el pipeline de modelado:
+
+\begin{itemize}
+\item \textbf{Redimensionamiento obligatorio}: todas las imágenes deben ser escaladas a 224×224 px para ser compatibles con \textit{Vision Transformers}.
+\item \textbf{Normalización estándar}: dada la estabilidad de brillo y color, basta con aplicar la normalización típica de modelos preentrenados (mean/std de ImageNet).
+\item \textbf{Augmentations moderados}: la homogeneidad del dataset sugiere utilizar aumentos suaves (flips, jitter ligero) para mejorar generalización sin distorsionar objetos.
+\item \textbf{Manejo de desbalance}: será necesario emplear \textit{class weighting}, muestreo estratificado o pérdidas alternativas para evitar que el modelo favorezca categorías dominantes.
+\item \textbf{Selección del modelo}: la baja resolución original y la estructura limpia de producto sobre fondo blanco justifican el uso de \textit{Vision Transformers}, que aprovechan patrones espaciales uniformes y generalizan bien ante variaciones mínimas.
+\end{itemize}
+
+En conjunto, el EDA confirma que el dataset es adecuado para entrenar un sistema de clasificación de atributos visuales basado en arquitecturas modernas de visión profunda, requiriendo únicamente ajustes controlados para alcanzar condiciones óptimas de entrenamiento.

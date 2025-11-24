@@ -6,4 +6,12 @@
 \contentsline {section}{\numberline {1.3}Propuesta de valor}{2}{section.1.3}%
 \contentsline {section}{\numberline {1.4}Objetivos y alcance}{2}{section.1.4}%
 \contentsline {section}{\numberline {1.5}Datos utilizados}{3}{section.1.5}%
-\contentsline {chapter}{\numberline {A}Planificación del Proyecto}{5}{appendix.Alph1}%
+\contentsline {chapter}{\numberline {2}Análisis Exploratorio de Datos}{5}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Descripción general del dataset}{5}{section.2.1}%
+\contentsline {section}{\numberline {2.2}Análisis de valores faltantes}{5}{section.2.2}%
+\contentsline {section}{\numberline {2.3}Distribución de clases}{6}{section.2.3}%
+\contentsline {section}{\numberline {2.4}Inspección visual de muestras}{8}{section.2.4}%
+\contentsline {section}{\numberline {2.5}Variabilidad en tamaños de imagen}{9}{section.2.5}%
+\contentsline {section}{\numberline {2.6}Análisis de calidad de imagen}{9}{section.2.6}%
+\contentsline {section}{\numberline {2.7}Conclusiones del EDA y su impacto en el modelado}{10}{section.2.7}%
+\contentsline {chapter}{\numberline {A}Planificación del Proyecto}{13}{appendix.Alph1}%

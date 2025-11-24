@@ -21,12 +21,18 @@ MODELS_DIR = PROJ_ROOT / "models"
 REPORTS_DIR = PROJ_ROOT / "reports"
 FIGURES_DIR = REPORTS_DIR / "figures"
 
+# Architecture
+TARGET_SIZE = (224, 224)
+
 # If tqdm is installed, configure loguru with tqdm.write
 # https://github.com/Delgan/loguru/issues/135
 try:
     from tqdm import tqdm
 
-    logger.remove(0)
+    try:
+        logger.remove(0)
+    except ValueError:
+        pass
     logger.add(lambda msg: tqdm.write(msg, end=""), colorize=True)
 except ModuleNotFoundError:
     pass
