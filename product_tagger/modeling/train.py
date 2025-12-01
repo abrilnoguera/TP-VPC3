@@ -16,7 +16,7 @@ from product_tagger.config import (
     MLFLOW_EXPERIMENT_NAME,
     MLFLOW_TRACKING_URI,
     MODELS_DIR,
-    PROCESSED_DATA_DIR,
+    PROCESSED_DATA_DIR
 )
 from product_tagger.data_loader import ImageDataset
 from product_tagger.modeling.vit import create_vit_model

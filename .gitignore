@@ -34,7 +34,7 @@ coverage.xml
 .env.*
 
 # MLflow runs
-mlruns/
+#mlruns/
 
 # Large, reproducible artifacts
 models/

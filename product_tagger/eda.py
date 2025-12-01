@@ -8,7 +8,7 @@ from tqdm import tqdm
 import cv2
 import mlflow
 
-from product_tagger.config import RAW_DATA_DIR, PROCESSED_DATA_DIR, FIGURES_DIR, TARGET_SIZE, MLFLOW_TRACKING_URI, MLFLOW_EXPERIMENT_NAME,
+from product_tagger.config import RAW_DATA_DIR, PROCESSED_DATA_DIR, FIGURES_DIR, TARGET_SIZE, MLFLOW_TRACKING_URI, MLFLOW_EXPERIMENT_NAME
 from loguru import logger
 
 
