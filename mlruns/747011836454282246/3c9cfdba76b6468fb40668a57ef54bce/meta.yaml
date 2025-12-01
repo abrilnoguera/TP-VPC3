@@ -1,0 +1,14 @@
+artifact_uri: file:///Users/pedrobarrera/TP-VPC3/mlruns/747011836454282246/3c9cfdba76b6468fb40668a57ef54bce/artifacts
+end_time: 1764537382418
+entry_point_name: ''
+experiment_id: '747011836454282246'
+lifecycle_stage: active
+run_id: 3c9cfdba76b6468fb40668a57ef54bce
+run_name: eda_initial_dataset
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1764537367439
+status: 3
+tags: []
+user_id: pedrobarrera

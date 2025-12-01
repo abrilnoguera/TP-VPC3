@@ -6,8 +6,9 @@ from pathlib import Path
 from PIL import Image, UnidentifiedImageError
 from tqdm import tqdm
 import cv2
+import mlflow
 
-from product_tagger.config import RAW_DATA_DIR, PROCESSED_DATA_DIR, FIGURES_DIR, TARGET_SIZE
+from product_tagger.config import RAW_DATA_DIR, PROCESSED_DATA_DIR, FIGURES_DIR, TARGET_SIZE, MLFLOW_TRACKING_URI, MLFLOW_EXPERIMENT_NAME
 from loguru import logger
 
 
@@ -52,7 +53,13 @@ def validate_images(df, images_dir=None):
     logger.info(f"Corrupted images: {corrupted}")
     logger.info(f"Valid images: {len(valid_rows)}")
 
-    return pd.DataFrame(valid_rows)
+    stats = {
+        "missing_images": missing,
+        "corrupted_images": corrupted,
+        "valid_images": len(valid_rows),
+    }
+
+    return pd.DataFrame(valid_rows), stats
 
 
 # ===============================================================
@@ -233,17 +240,33 @@ def analyze_image_quality(df, images_dir=None, n_samples=500):
     logger.success(f"Saved: {fig_path}")
     plt.close(fig)
 
+    brightness_mean = float(np.mean(brightness)) if brightness else 0.0
+    contrast_mean = float(np.mean(contrast)) if contrast else 0.0
+    sharpness_mean = float(np.mean(sharpness)) if sharpness else 0.0
+    r_mean = float(np.mean(r_vals)) if r_vals else 0.0
+    g_mean = float(np.mean(g_vals)) if g_vals else 0.0
+    b_mean = float(np.mean(b_vals)) if b_vals else 0.0
+
     logger.info("--- Conclusiones de calidad ---")
-    logger.info(f"Brillo medio: {np.mean(brightness):.1f}")
-    logger.info(f"Contraste medio: {np.mean(contrast):.1f}")
-    logger.info(f"Nitidez media: {np.mean(sharpness):.1f}")
-    logger.info(f"RGB medios: R={np.mean(r_vals):.1f} G={np.mean(g_vals):.1f} B={np.mean(b_vals):.1f}")
+    logger.info(f"Brillo medio: {brightness_mean:.1f}")
+    logger.info(f"Contraste medio: {contrast_mean:.1f}")
+    logger.info(f"Nitidez media: {sharpness_mean:.1f}")
+    logger.info(f"RGB medios: R={r_mean:.1f} G={g_mean:.1f} B={b_mean:.1f}")
 
     logger.info(
         "Conclusión: Imágenes con fondo blanco, brillo estable, "
         "contraste moderado y nitidez baja por compresión. "
         "→ Añadir augmentations suaves (ColorJitter, GaussianBlur p=0.2)."
     )
+
+    return {
+        "brightness_mean": brightness_mean,
+        "contrast_mean": contrast_mean,
+        "sharpness_mean": sharpness_mean,
+        "r_mean": r_mean,
+        "g_mean": g_mean,
+        "b_mean": b_mean,
+    }
 
 
 # ===============================================================
@@ -262,25 +285,71 @@ def save_clean_dataset(df):
 def run_eda():
     logger.info("=== Starting EDA for Product Tagger ===")
 
-    df = load_styles()
+    # Configurar MLflow
+    mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
+    mlflow.set_experiment(MLFLOW_EXPERIMENT_NAME)
 
-    plot_missing_values(df)
+    with mlflow.start_run(run_name="eda_initial_dataset"):
+        df = load_styles()
 
-    for col in ["gender", "masterCategory", "subCategory", "articleType"]:
-        if col in df.columns:
-            plot_class_distribution(df, col)
+        n_raw_rows = len(df)
+        mlflow.log_param("n_raw_rows", n_raw_rows)
 
-    df_valid = validate_images(df)
+        plot_missing_values(df)
 
-    show_random_images(df_valid)
+        # Log de figuras básicas (si existen)
+        missing_fig = FIGURES_DIR / "missing_values.png"
+        if missing_fig.exists():
+            mlflow.log_artifact(str(missing_fig), artifact_path="figures")
 
-    analyze_image_stats(df_valid)
+        # Distribuciones de clases
+        for col in ["gender", "masterCategory", "subCategory", "articleType"]:
+            if col in df.columns:
+                counts = df[col].value_counts()
+                n_classes = len(counts)
+                max_class_count = int(counts.iloc[0])
+                min_class_count = int(counts.iloc[-1])
 
-    analyze_image_quality(df_valid)   # 🔥🔥🔥 AGREGADO
+                mlflow.log_param(f"n_classes_{col}", n_classes)
+                mlflow.log_metric(f"max_class_count_{col}", max_class_count)
+                mlflow.log_metric(f"min_class_count_{col}", min_class_count)
 
-    save_clean_dataset(df_valid)
+                plot_class_distribution(df, col)
 
-    logger.success("=== EDA Completed Successfully ===")
+                fig_path = FIGURES_DIR / f"class_distribution_{col}.png"
+                if fig_path.exists():
+                    mlflow.log_artifact(str(fig_path), artifact_path="figures")
+
+        df_valid, img_stats = validate_images(df)
+
+        mlflow.log_metric("missing_images", img_stats["missing_images"])
+        mlflow.log_metric("corrupted_images", img_stats["corrupted_images"])
+        mlflow.log_metric("valid_images", img_stats["valid_images"])
+
+        show_random_images(df_valid)
+        random_fig = FIGURES_DIR / "random_samples.png"
+        if random_fig.exists():
+            mlflow.log_artifact(str(random_fig), artifact_path="figures")
+
+        analyze_image_stats(df_valid)
+        stats_fig = FIGURES_DIR / "image_resolution_scatter.png"
+        if stats_fig.exists():
+            mlflow.log_artifact(str(stats_fig), artifact_path="figures")
+
+        quality_stats = analyze_image_quality(df_valid)   # 🔥🔥🔥 AGREGADO
+        for key, value in quality_stats.items():
+            mlflow.log_metric(key, value)
+
+        quality_fig = FIGURES_DIR / "image_quality.png"
+        if quality_fig.exists():
+            mlflow.log_artifact(str(quality_fig), artifact_path="figures")
+
+        save_clean_dataset(df_valid)
+        clean_path = PROCESSED_DATA_DIR / "dataset_clean.csv"
+        if clean_path.exists():
+            mlflow.log_artifact(str(clean_path), artifact_path="data")
+
+        logger.success("=== EDA Completed Successfully ===")
 
 
 if __name__ == "__main__":
