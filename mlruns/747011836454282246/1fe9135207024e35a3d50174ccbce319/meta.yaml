@@ -1,0 +1,14 @@
+artifact_uri: file:///Users/pedrobarrera/TP-VPC3/mlruns/747011836454282246/1fe9135207024e35a3d50174ccbce319/artifacts
+end_time: null
+entry_point_name: ''
+experiment_id: '747011836454282246'
+lifecycle_stage: active
+run_id: 1fe9135207024e35a3d50174ccbce319
+run_name: vit_articleType
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1764735394524
+status: 1
+tags: []
+user_id: pedro
