@@ -180,7 +180,7 @@ def main(
     val_images_dir: Path = PROCESSED_DATA_DIR / "images" / "val",
     label_col: str = "articleType",
     model_output_path: Path = MODELS_DIR / "vit_articleType_aug.pt",
-    epochs: int = 5,
+    epochs: int = 10,
     batch_size: int = 32,
     lr: float = 3e-4,
     weight_decay: float = 1e-4,
