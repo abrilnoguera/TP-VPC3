@@ -41,4 +41,7 @@ models/
 data/raw/images/
 data/processed/images/
 
-
+# ONNX artifacts
+product_tagger/onnx/
+*.onnx
+*.onnx.data
