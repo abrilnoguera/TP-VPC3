@@ -113,3 +113,52 @@ A continuación se describen los principales criterios que motivaron la elecció
 
 \item Explicabilidad del modelo: La arquitectura estándar de \texttt{ViT-B/16} facilita el análisis e interpretación de las atenciones generadas por el modelo, una característica valiosa en contextos de e-commerce donde se requiere trazabilidad en las decisiones del clasificador.
 \end{itemize}
+
+\section{Configuración de entrenamiento}
+
+Una vez definido el modelo base, se implementó un \textit{pipeline} de entrenamiento en el script \texttt{train.py} encargado de orquestar la construcción de los \textit{DataLoaders}, la inicialización del \textit{Vision Transformer}, el bucle de optimización y el registro de métricas en \texttt{MLflow}. El flujo general es el siguiente:
+
+\begin{enumerate}
+    \item Carga de los archivos \texttt{train.csv} y \texttt{val.csv} y de las carpetas de imágenes correspondientes.
+    \item Construcción de los conjuntos de entrenamiento y validación mediante la clase \texttt{ImageDataset}, que aplica las transformaciones definidas (redimensionamiento, normalización y, opcionalmente, \textit{data augmentation}).
+    \item Inicialización del modelo \texttt{ViT-B/16} preentrenado en ImageNet y adaptación de la \textit{classification head} al número de clases del atributo \texttt{articleType}.
+    \item Entrenamiento del modelo durante un máximo de \textbf{10 épocas}, monitorizando la pérdida y las métricas de validación.
+    \item Aplicación de \textit{early stopping} basado en la pérdida de validación, con una paciencia de \textbf{5 épocas} sin mejora.
+    \item Almacenamiento del mejor modelo en disco y registro de artefactos (modelo y mapeo \texttt{class\_to\_idx}) en \texttt{MLflow}.
+\end{enumerate}
+
+\subsection{Función de pérdida}
+
+Para la tarea de clasificación multiclase sobre el atributo \texttt{articleType} se utilizó la función de pérdida \textbf{CrossEntropyLoss} de PyTorch. Esta elección es estándar en problemas donde cada imagen pertenece exactamente a una única clase entre $K$ posibles, y permite optimizar directamente la probabilidad de la clase correcta a partir de los \textit{logits} producidos por la \textit{classification head}.
+
+Inicialmente se consideró incorporar \textbf{ponderación por clase (\textit{class weighting})} para mitigar el desbalance observado en el atributo \texttt{articleType}. Sin embargo, se optó por comenzar con una configuración base sin pesos, utilizando en cambio métricas complementarias (F1 macro y F1 ponderado) para evaluar el impacto del desbalance. La incorporación de \textit{class weighting} se deja identificada como trabajo futuro para profundizar en la corrección de dicho desbalance sin introducir complejidad adicional en esta primera versión del sistema.
+
+\subsection{Optimizador y regularización}
+
+Como algoritmo de optimización se empleó \textbf{AdamW} con una tasa de aprendizaje inicial de $\text{lr} = 3 \times 10^{-4}$ y un término de \textit{weight decay} de $1 \times 10^{-4}$. La elección de \texttt{AdamW} se debe a que combina la adaptatividad de Adam (que ajusta de forma independiente la tasa de aprendizaje de cada parámetro) con una formulación de \textit{weight decay} desacoplada, lo que ha demostrado funcionar especialmente bien en \textit{Transformers} preentrenados.
+
+El valor de $\text{lr} = 3 \times 10^{-4}$ sigue las recomendaciones habituales para \textit{fine-tuning} de modelos preentrenados: lo suficientemente bajo como para no desestabilizar los pesos aprendidos en ImageNet, pero alto como para permitir la adaptación al nuevo dominio con un número limitado de épocas. El término de \textbf{weight decay = $1 \times 10^{-4}$} introduce una regularización L2 moderada que ayuda a evitar sobreajuste en un problema con más de 100 clases y tamaño de dataset acotado.
+
+\subsection{Scheduler de tasa de aprendizaje}
+
+En la configuración actual no se empleó un \textit{scheduler} explícito de la tasa de aprendizaje. Se optó por mantener una tasa fija de $3 \times 10^{-4}$ durante todo el entrenamiento para simplificar el diseño experimental y poder aislar el efecto de otros componentes (data augmentation, \textit{early stopping}, etc.). En trabajos futuros se considera incorporar \textit{learning rate scheduling} (por ejemplo, \textit{cosine decay} o \textit{step decay}) para explorar mejoras adicionales de desempeño una vez fijada la configuración base.
+
+\subsection{Número de épocas, tamaño de lote y \textit{early stopping}}
+
+El entrenamiento se configuró con un máximo de \textbf{10 épocas} y un tamaño de lote de \textbf{32} imágenes. El tamaño de lote se eligió como compromiso entre el uso eficiente de la memoria GPU disponible, la estabilidad de las estimaciones de gradiente y un tiempo de entrenamiento razonable para iterar sobre distintos experimentos.
+
+Dado que el modelo parte de pesos preentrenados, no se espera necesitar un número muy elevado de épocas para converger. Para evitar sobreajuste y entrenamientos innecesariamente largos, se implementó un mecanismo de \textbf{early stopping} monitorizando la pérdida de validación (\texttt{val\_loss}) con una paciencia de \textbf{5 épocas}. Si la pérdida de validación no mejora en cinco iteraciones consecutivas, el entrenamiento se detiene y se conserva el modelo con mejor desempeño observado.
+
+Este esquema permite adaptarse dinámicamente al punto de saturación del modelo: en experimentos preliminares se observó que la pérdida de validación tiende a estabilizarse antes de alcanzar las 10 épocas, por lo que el \textit{early stopping} ayuda a reducir el tiempo de entrenamiento sin sacrificar rendimiento.
+
+\subsection{Data augmentation durante el entrenamiento}
+
+Durante el entrenamiento se aplicaron técnicas moderadas de \textit{data augmentation} sobre el conjunto de entrenamiento, manteniendo únicamente el redimensionamiento y la normalización en validación. Las transformaciones utilizadas fueron:
+
+\begin{itemize}
+    \item \textbf{RandomHorizontalFlip} con probabilidad 0{,}5.
+    \item \textbf{ColorJitter} (brillo, contraste, saturación y tono) aplicado con probabilidad 0{,}5.
+    \item \textbf{RandomRotation} de hasta $\pm 10^\circ$.
+\end{itemize}
+
+Estas transformaciones buscan aumentar la variabilidad efectiva del dataset sin alterar la semántica de la clase (por ejemplo, una remera sigue siendo la misma clase aunque se vea ligeramente más brillante o rotada). La decisión de utilizar augmentations suaves se basó en las observaciones del EDA: fondos mayormente neutros, productos centrados y buena calidad de imagen, donde deformaciones agresivas podrían introducir artefactos irreales.
