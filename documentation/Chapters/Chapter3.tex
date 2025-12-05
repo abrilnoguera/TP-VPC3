@@ -87,3 +87,29 @@ Con las particiones y el preprocesamiento definidos, se implementó una clase \t
 \end{itemize}
 
 Este diseño permite integrar el dataset de manera directa con el \textit{DataLoader} de PyTorch, facilitando el batching, el shuffle y la paralelización en CPU.
+
+\section{Selección de modelo}
+
+Para la tarea de clasificación multiclase sobre imágenes de productos de e-commerce se seleccionó como modelo base un \textit{Vision Transformer} de tipo \texttt{ViT-B/16}, en su implementación de \texttt{torchvision} con pesos preentrenados en ImageNet. Esta variante (Base, con tamaño de parche $16 \times 16$) se adaptó al problema reemplazando la \textit{classification head} original por una capa totalmente conectada ajustada al número de clases del dataset, manteniendo el resto de la arquitectura estándar y realizando \textit{fine-tuning} sobre el dominio objetivo.
+
+\subsection{Descripción de la arquitectura ViT-B/16}
+
+\texttt{ViT-B/16} sigue la arquitectura de los \textit{Vision Transformers} clásicos: la imagen de entrada ($224 \times 224$) se divide en parches no solapados de $16 \times 16$ píxeles, que se aplanan y proyectan linealmente a vectores de \textit{embedding}. A esta secuencia se añade un token especial de clasificación (\texttt{[CLS]}) y se suman \textit{positional embeddings} entrenables.
+
+La secuencia resultante se procesa mediante una pila de bloques \texttt{Transformer encoder}, cada uno compuesto por una capa de \textit{Multi-Head Self-Attention} (MHSA), una red \textit{feed-forward} por token y mecanismos de normalización y residuales. Finalmente, la representación del token \texttt{[CLS]} se pasa a la \textit{classification head}, una capa lineal ajustada al número de clases.
+
+\subsection{Criterios de selección}
+
+A continuación se describen los principales criterios que motivaron la elección de \texttt{ViT-B/16} frente a otras variantes de \textit{Vision Transformers}:
+
+\begin{itemize}
+\item Adaptación al dominio visual del dataset: Como se mencionó anteriormente, el dataset objetivo para el entrenamiento pertenece al dominio del e-commerce. Las imágenes presentan productos centrados, fondos neutros y buena calidad visual, condiciones adecuadas para que el mecanismo de atención global de ViT capture patrones discriminativos relevantes. La tarea concreta de clasificación sobre el atributo \texttt{articleType}, con más de 100 clases, demanda un modelo con alta capacidad de representación para distinguir diferencias sutiles entre prendas y accesorios.
+
+\item Preentrenamiento robusto y transferible: \texttt{ViT-B/16} ha sido preentrenado sobre ImageNet con una configuración ampliamente validada. Esto permite aprovechar representaciones generales de alto nivel y realizar una adaptación eficiente al dominio específico con un número moderado de epochs y tamaño de batch reducido.
+
+\item Compromiso entre capacidad y coste: Frente a variantes más pequeñas (como \texttt{ViT-Ti} o \texttt{ViT-S}), \texttt{ViT-B} ofrece mayor capacidad de representación, lo que resulta ventajoso en un problema con gran número de clases. Al mismo tiempo, evita el alto costo computacional y el riesgo de sobreajuste asociado a variantes más grandes (\texttt{ViT-L}, \texttt{ViT-H}), resultando adecuada para entrenamientos limitados en tiempo y memoria.
+
+\item Tamaño de parche equilibrado ($16 \times 16$): Este tamaño proporciona un balance eficaz entre resolución espacial y eficiencia computacional. Capta suficiente detalle local para discriminar entre productos similares, sin comprometer la viabilidad del entrenamiento con recursos restringidos.
+
+\item Explicabilidad del modelo: La arquitectura estándar de \texttt{ViT-B/16} facilita el análisis e interpretación de las atenciones generadas por el modelo, una característica valiosa en contextos de e-commerce donde se requiere trazabilidad en las decisiones del clasificador.
+\end{itemize}

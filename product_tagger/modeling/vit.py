@@ -1,7 +1,7 @@
 from typing import Dict, Tuple
 
-import torch.nn as nn
 from loguru import logger
+import torch.nn as nn
 from torchvision.models import ViT_B_16_Weights, vit_b_16
 
 
@@ -10,17 +10,33 @@ def create_vit_model_v2(
     pretrained: bool = True,
 ) -> Tuple[nn.Module, Dict]:
     """
-    Crea un Vision Transformer (ViT-B/16) para clasificación.
+    Crea un Vision Transformer (ViT-B/16) listo para clasificación.
+
+    Parameters
+    ----------
+    num_classes : int
+        Número de clases de salida.
+    pretrained : bool, default=True
+        Si True, carga pesos pre-entrenados en ImageNet.
+
+    Returns
+    -------
+    model : nn.Module
+        Modelo ViT con la última capa ajustada a `num_classes`.
+    meta : Dict
+        Diccionario con información útil (mean, std, image_size) para normalización.
     """
 
+    # Fallbacks seguros de ImageNet (correctos para ViT-B/16)
     default_mean = (0.485, 0.456, 0.406)
-    default_std  = (0.229, 0.224, 0.225)
+    default_std = (0.229, 0.224, 0.225)
     default_size = 224
 
     if pretrained:
         weights = ViT_B_16_Weights.DEFAULT
         model = vit_b_16(weights=weights)
 
+        # Algunos torchvision nuevos no traen meta completo
         meta_raw = getattr(weights, "meta", {}) or {}
 
         if isinstance(meta_raw, dict):
@@ -33,6 +49,7 @@ def create_vit_model_v2(
             image_size = default_size
 
     else:
+        # Sin pesos preentrenados
         model = vit_b_16(weights=None)
         mean = default_mean
         std = default_std

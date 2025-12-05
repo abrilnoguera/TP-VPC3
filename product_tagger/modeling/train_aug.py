@@ -258,6 +258,7 @@ def main(
 
     logger.info(f"Using normalization mean={mean}, std={std}, image_size={image_size}")
 
+    # DataLoaders con augmentation
     train_loader, val_loader, class_to_idx = build_dataloaders_with_augmentation(
         train_csv=train_csv,
         val_csv=val_csv,

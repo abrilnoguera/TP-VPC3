@@ -1,11 +1,12 @@
 import json
 from pathlib import Path
-from typing import Dict, Tuple
+from typing import Dict, Optional, Tuple
 
+from loguru import logger
 import mlflow
 import mlflow.pytorch
+from sklearn.metrics import f1_score
 import torch
-from loguru import logger
 from torch import nn, optim
 from torch.utils.data import DataLoader
 from torchvision import transforms
@@ -16,10 +17,10 @@ from product_tagger.config import (
     MLFLOW_EXPERIMENT_NAME,
     MLFLOW_TRACKING_URI,
     MODELS_DIR,
-    PROCESSED_DATA_DIR
+    PROCESSED_DATA_DIR,
 )
 from product_tagger.data_loader import ImageDataset
-from product_tagger.modeling.vit import create_vit_model
+from product_tagger.modeling.vit import create_vit_model_v2
 
 app = typer.Typer()
 
@@ -29,31 +30,44 @@ def build_dataloaders(
     val_csv: Path,
     train_images_dir: Path,
     val_images_dir: Path,
+    mean,
+    std,
+    image_size: int = 224,
     label_col: str = "articleType",
     batch_size: int = 32,
     num_workers: int = 4,
+    class_to_idx: Optional[Dict[str, int]] = None,
 ) -> Tuple[DataLoader, DataLoader, Dict[str, int]]:
-    train_df = ImageDataset(
-        csv_path=train_csv,
-        images_dir=train_images_dir,
-        label_col=label_col,
-        transform=None,
-    ).data
+    """
+    Construye los DataLoaders de entrenamiento y validación a partir de los CSV
+    procesados y las carpetas de imágenes.
 
-    # Mapeo estable clase -> índice
-    classes = sorted(train_df[label_col].unique())
-    class_to_idx = {cls: idx for idx, cls in enumerate(classes)}
-    logger.info(f"Detected {len(classes)} classes.")
+    - Lee el CSV de entrenamiento para inferir el conjunto de clases y crear
+      un mapeo estable clase -> índice entero (`class_to_idx`).
+    - Instancia dos `ImageDataset` (train y val) que aplican las
+      transformaciones de entrada y convierten las etiquetas a índices.
+    - Devuelve DataLoaders listos para usar en el loop de entrenamiento.
+    """
 
-    # Transforms básicos (ToTensor + normalización estándar ImageNet)
-    # Los valores se ajustan luego según el meta devuelto por create_vit_model.
+    if class_to_idx is None:
+        train_df = ImageDataset(
+            csv_path=train_csv,
+            images_dir=train_images_dir,
+            label_col=label_col,
+            transform=None,
+        ).data
+        classes = sorted(train_df[label_col].unique())
+        class_to_idx = {cls: idx for idx, cls in enumerate(classes)}
+        logger.info(f"Detected {len(classes)} classes.")
+
     base_transform = transforms.Compose(
         [
+            transforms.Resize((image_size, image_size)),
             transforms.ToTensor(),
+            transforms.Normalize(mean=mean, std=std),
         ]
     )
 
-    # Datasets ya con el mapping
     train_dataset = ImageDataset(
         csv_path=train_csv,
         images_dir=train_images_dir,
@@ -92,6 +106,13 @@ def train_one_epoch(
     optimizer: optim.Optimizer,
     device: torch.device,
 ) -> Tuple[float, float]:
+    """
+    Ejecuta una época completa de entrenamiento sobre un DataLoader.
+
+    Recorre todos los batches del conjunto de entrenamiento, calcula la
+    pérdida, realiza backpropagation y acumula métricas de `loss` y
+    `accuracy` promedio.
+    """
     model.train()
     running_loss = 0.0
     correct = 0
@@ -122,11 +143,17 @@ def evaluate(
     loader: DataLoader,
     criterion: nn.Module,
     device: torch.device,
-) -> Tuple[float, float]:
+) -> Tuple[float, float, float, float]:
+    """
+    Devuelve loss, acc, f1_macro y f1_weighted para el conjunto indicado.
+    """
     model.eval()
     running_loss = 0.0
     correct = 0
     total = 0
+
+    all_labels = []
+    all_preds = []
 
     with torch.no_grad():
         for images, labels in tqdm(loader, desc="Val", leave=False):
@@ -141,9 +168,20 @@ def evaluate(
             correct += (preds == labels).sum().item()
             total += labels.size(0)
 
+            all_labels.extend(labels.cpu().tolist())
+            all_preds.extend(preds.cpu().tolist())
+
     epoch_loss = running_loss / total if total > 0 else 0.0
     epoch_acc = correct / total if total > 0 else 0.0
-    return epoch_loss, epoch_acc
+
+    if total > 0:
+        f1_macro = f1_score(all_labels, all_preds, average="macro")
+        f1_weighted = f1_score(all_labels, all_preds, average="weighted")
+    else:
+        f1_macro = 0.0
+        f1_weighted = 0.0
+
+    return epoch_loss, epoch_acc, f1_macro, f1_weighted
 
 
 @app.command()
@@ -154,13 +192,14 @@ def main(
     val_images_dir: Path = PROCESSED_DATA_DIR / "images" / "val",
     label_col: str = "articleType",
     model_output_path: Path = MODELS_DIR / "vit_articleType.pt",
-    epochs: int = 5,
+    epochs: int = 10,
     batch_size: int = 32,
     lr: float = 3e-4,
     weight_decay: float = 1e-4,
     num_workers: int = 4,
     seed: int = 42,
     device_str: str = "auto",
+    patience: int = 5,
 ):
     """
     Entrena un Vision Transformer (ViT-B/16) sobre las imágenes procesadas
@@ -187,33 +226,51 @@ def main(
     mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
     mlflow.set_experiment(MLFLOW_EXPERIMENT_NAME)
 
+    tmp_ds = ImageDataset(
+        csv_path=train_csv,
+        images_dir=train_images_dir,
+        label_col=label_col,
+        transform=None,
+    )
+    classes = sorted(tmp_ds.data[label_col].unique())
+    class_to_idx = {cls: idx for idx, cls in enumerate(classes)}
+    num_classes = len(classes)
+    logger.info(f"Detected {num_classes} classes.")
+
+    model, meta = create_vit_model_v2(num_classes=num_classes, pretrained=True)
+
+    default_mean = [0.485, 0.456, 0.406]
+    default_std = [0.229, 0.224, 0.225]
+    default_size = 224
+
+    if isinstance(meta, dict):
+        mean = meta.get("mean", default_mean)
+        std = meta.get("std", default_std)
+        image_size = meta.get("image_size", default_size)
+    else:
+        logger.warning(f"meta is not a dict ({type(meta)}). Using default ImageNet stats.")
+        mean = default_mean
+        std = default_std
+        image_size = default_size
+
+    if isinstance(image_size, (tuple, list)):
+        image_size = image_size[0]
+
+    logger.info(f"Using normalization mean={mean}, std={std}, image_size={image_size}")
+
     train_loader, val_loader, class_to_idx = build_dataloaders(
         train_csv=train_csv,
         val_csv=val_csv,
         train_images_dir=train_images_dir,
         val_images_dir=val_images_dir,
+        mean=mean,
+        std=std,
+        image_size=image_size,
         label_col=label_col,
         batch_size=batch_size,
         num_workers=num_workers,
+        class_to_idx=class_to_idx,
     )
-
-    num_classes = len(class_to_idx)
-    model, meta = create_vit_model(num_classes=num_classes, pretrained=True)
-
-    # Normalización según pesos ImageNet
-    mean = meta["mean"]
-    std = meta["std"]
-    logger.info(f"Using normalization mean={mean}, std={std}")
-
-    # Re-definir transforms de los datasets con normalización correcta
-    norm_transform = transforms.Compose(
-        [
-            transforms.ToTensor(),
-            transforms.Normalize(mean=mean, std=std),
-        ]
-    )
-    train_loader.dataset.transform = norm_transform
-    val_loader.dataset.transform = norm_transform
 
     model.to(device)
 
@@ -224,9 +281,10 @@ def main(
         weight_decay=weight_decay,
     )
 
-    best_val_acc = 0.0
+    best_val_loss = float("inf")
+    epochs_no_improve = 0
 
-    with mlflow.start_run(run_name="vit_articleType"):
+    with mlflow.start_run(run_name="vit_articleType_no_aug"):
         # Log de hiperparámetros
         mlflow.log_params(
             {
@@ -238,6 +296,8 @@ def main(
                 "seed": seed,
                 "num_workers": num_workers,
                 "label_col": label_col,
+                "augmentation": "none",
+                "early_stopping_patience": patience,
             }
         )
 
@@ -252,7 +312,7 @@ def main(
                 device=device,
             )
 
-            val_loss, val_acc = evaluate(
+            val_loss, val_acc, val_f1_macro, val_f1_weighted = evaluate(
                 model=model,
                 loader=val_loader,
                 criterion=criterion,
@@ -262,7 +322,8 @@ def main(
             logger.info(
                 f"Epoch {epoch}: "
                 f"train_loss={train_loss:.4f}, train_acc={train_acc:.4f}, "
-                f"val_loss={val_loss:.4f}, val_acc={val_acc:.4f}"
+                f"val_loss={val_loss:.4f}, val_acc={val_acc:.4f}, "
+                f"val_f1_macro={val_f1_macro:.4f}, val_f1_weighted={val_f1_weighted:.4f}"
             )
 
             # Registro de métricas en MLflow
@@ -272,15 +333,17 @@ def main(
                     "train_acc": train_acc,
                     "val_loss": val_loss,
                     "val_acc": val_acc,
+                    "val_f1_macro": val_f1_macro,
+                    "val_f1_weighted": val_f1_weighted,
                 },
                 step=epoch,
             )
 
-            # Guardado simple del mejor modelo en disco
-            if val_acc > best_val_acc:
-                best_val_acc = val_acc
+            if val_loss < best_val_loss:
+                best_val_loss = val_loss
+                epochs_no_improve = 0
                 logger.info(
-                    f"New best val_acc={best_val_acc:.4f}, saving model to {model_output_path}"
+                    f"New best val_loss={best_val_loss:.4f}, saving model to {model_output_path}"
                 )
 
                 state = {
@@ -290,8 +353,23 @@ def main(
                     "label_col": label_col,
                 }
                 torch.save(state, model_output_path)
+            else:
+                epochs_no_improve += 1
+                logger.info(
+                    f"No improvement in val_loss for {epochs_no_improve} epoch(s). "
+                    f"Patience = {patience}."
+                )
 
-        # Registrar el modelo (último) en MLflow para exploración
+            if epochs_no_improve >= patience:
+                logger.info(
+                    f"Early stopping triggered after {epochs_no_improve} epochs without "
+                    f"val_loss improvement. Best val_loss={best_val_loss:.4f}."
+                )
+                break
+
+        best_state = torch.load(model_output_path, map_location=device)
+        model.load_state_dict(best_state["model_state_dict"])
+
         mlflow.pytorch.log_model(model, artifact_path="model")
 
         # Guardar mapping clase -> índice como artefacto JSON
@@ -300,7 +378,7 @@ def main(
             json.dump(class_to_idx, f, ensure_ascii=False, indent=2)
         mlflow.log_artifact(str(mapping_path))
 
-    logger.success("Training complete.")
+    logger.success("Training without augmentation complete.")
 
 
 if __name__ == "__main__":

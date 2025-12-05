@@ -1,6 +1,4 @@
-import json
 from pathlib import Path
-from typing import Dict
 
 import torch
 from loguru import logger
@@ -16,30 +14,25 @@ from product_tagger.modeling.vit import create_vit_model
 app = typer.Typer()
 
 
-def load_class_mapping(mapping_path: Path) -> Dict[int, str]:
-    if not mapping_path.exists():
-        raise FileNotFoundError(f"Class mapping JSON not found: {mapping_path}")
-
-    with mapping_path.open("r", encoding="utf-8") as f:
-        class_to_idx = json.load(f)
-
-    idx_to_class = {int(v): k for k, v in class_to_idx.items()}
-    return idx_to_class
-
-
 @app.command()
 def main(
     test_csv: Path = PROCESSED_DATA_DIR / "test.csv",
     test_images_dir: Path = PROCESSED_DATA_DIR / "images" / "test",
     model_path: Path = MODELS_DIR / "vit_articleType.pt",
-    mapping_path: Path = MODELS_DIR / "class_to_idx.json",
     predictions_path: Path = PROCESSED_DATA_DIR / "test_predictions.csv",
     batch_size: int = 64,
     num_workers: int = 4,
     device_str: str = "auto",
 ):
     """
-    Realiza inferencia sobre el split de test utilizando el modelo ViT entrenado.
+    Ejecuta el pipeline de inferencia sobre el split de test.
+
+    - Carga el checkpoint entrenado de ViT (pesos, `class_to_idx` y meta).
+    - Reconstruye el modelo con el mismo número de clases.
+    - Prepara un `ImageDataset` de test con las mismas transformaciones de
+      normalización usadas en entrenamiento.
+    - Genera predicciones para cada imagen y guarda un CSV con
+      `id`, índice de clase predicho y etiqueta textual.
     """
 
     if device_str == "auto":
@@ -55,7 +48,14 @@ def main(
 
     checkpoint = torch.load(model_path, map_location=device)
     class_to_idx = checkpoint["class_to_idx"]
-    meta = checkpoint.get("meta", {"mean": (0.5, 0.5, 0.5), "std": (0.5, 0.5, 0.5)})
+    # Valores por defecto de ImageNet (mismos que en vit.py)
+    # Estos son los valores estándar para modelos preentrenados en ImageNet
+    default_meta = {
+        "mean": (0.485, 0.456, 0.406),
+        "std": (0.229, 0.224, 0.225),
+        "image_size": 224,
+    }
+    meta = checkpoint.get("meta", default_meta)
     num_classes = len(class_to_idx)
 
     # Cargamos el mismo modelo que en entrenamiento

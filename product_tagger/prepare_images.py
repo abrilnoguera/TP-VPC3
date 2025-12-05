@@ -5,7 +5,7 @@ import pandas as pd
 from tqdm import tqdm
 from loguru import logger
 
-from product_tagger.config import RAW_DATA_DIR, PROCESSED_DATA_DIR,  TARGET_SIZE
+from product_tagger.config import RAW_DATA_DIR, PROCESSED_DATA_DIR, TARGET_SIZE
 
 
 def load_split(csv_name: str) -> pd.DataFrame:
@@ -76,6 +76,17 @@ def prepare_split(df: pd.DataFrame, split_name: str):
 
 
 def run_prepare_images():
+    """
+    Orquesta la preparación de imágenes para todos los splits.
+
+    - Asegura que exista la estructura `data/processed/images/{train,val,test}`.
+    - Carga los CSV de `train.csv`, `val.csv` y `test.csv` generados en etapas
+      anteriores del pipeline.
+    - Recorre cada split, abre las imágenes originales desde `data/raw/images`,
+      las convierte a RGB, las redimensiona a `TARGET_SIZE` y las guarda en la
+      carpeta correspondiente listas para ser usadas por PyTorch.
+    """
+
     logger.info("=== Preparando imágenes procesadas ===")
 
     ensure_dirs()
