@@ -5,7 +5,7 @@ import torch.nn as nn
 from torchvision.models import ViT_B_16_Weights, vit_b_16
 
 
-def create_vit_model_v2(
+def create_vit_model(
     num_classes: int,
     pretrained: bool = True,
 ) -> Tuple[nn.Module, Dict]:
