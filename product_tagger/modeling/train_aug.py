@@ -2,6 +2,7 @@ import json
 from pathlib import Path
 from typing import Dict, Tuple
 
+from sklearn.metrics import f1_score
 import mlflow
 import mlflow.pytorch
 import torch
@@ -148,11 +149,18 @@ def evaluate(
     loader: DataLoader,
     criterion: nn.Module,
     device: torch.device,
-) -> Tuple[float, float]:
+) -> Tuple[float, float, float, float]:
+    """
+    Devuelve:
+        epoch_loss, epoch_acc, f1_macro, f1_weighted
+    """
     model.eval()
     running_loss = 0.0
     correct = 0
     total = 0
+
+    all_labels = []
+    all_preds = []
 
     with torch.no_grad():
         for images, labels in tqdm(loader, desc="Val", leave=False):
@@ -164,12 +172,24 @@ def evaluate(
 
             running_loss += loss.item() * images.size(0)
             _, preds = outputs.max(1)
+
             correct += (preds == labels).sum().item()
             total += labels.size(0)
 
+            all_labels.extend(labels.cpu().tolist())
+            all_preds.extend(preds.cpu().tolist())
+
     epoch_loss = running_loss / total if total > 0 else 0.0
     epoch_acc = correct / total if total > 0 else 0.0
-    return epoch_loss, epoch_acc
+
+    if total > 0:
+        f1_macro = f1_score(all_labels, all_preds, average="macro")
+        f1_weighted = f1_score(all_labels, all_preds, average="weighted")
+    else:
+        f1_macro = 0.0
+        f1_weighted = 0.0
+
+    return epoch_loss, epoch_acc, f1_macro, f1_weighted
 
 
 @app.command()
@@ -187,6 +207,7 @@ def main(
     num_workers: int = 4,
     seed: int = 42,
     device_str: str = "auto",
+    patience: int = 5,
 ):
     """
     Entrena un ViT con data augmentation y MLflow.
@@ -213,9 +234,8 @@ def main(
     mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
     mlflow.set_experiment(MLFLOW_EXPERIMENT_NAME)
 
-    from product_tagger.data_loader import ImageDataset as _TmpDataset
-
-    tmp_ds = _TmpDataset(
+    # Dataset temporal para obtener número de clases
+    tmp_ds = ImageDataset(
         csv_path=train_csv,
         images_dir=train_images_dir,
         label_col=label_col,
@@ -228,17 +248,17 @@ def main(
 
     # Fallbacks estándar de ImageNet (válidos para ViT_B_16_Weights.IMAGENET1K_V1)
     default_mean = [0.485, 0.456, 0.406]
-    default_std  = [0.229, 0.224, 0.225]
+    default_std = [0.229, 0.224, 0.225]
     default_size = 224
 
     if isinstance(meta, dict):
         mean = meta.get("mean", default_mean)
-        std  = meta.get("std", default_std)
+        std = meta.get("std", default_std)
         image_size = meta.get("image_size", default_size)
     else:
         logger.warning(f"meta is not a dict ({type(meta)}). Using default ImageNet stats.")
         mean = default_mean
-        std  = default_std
+        std = default_std
         image_size = default_size
 
     if isinstance(image_size, (tuple, list)):
@@ -269,7 +289,8 @@ def main(
         weight_decay=weight_decay,
     )
 
-    best_val_acc = 0.0
+    best_val_loss = float("inf")
+    epochs_no_improve = 0
 
     with mlflow.start_run(run_name="vit_articleType_aug"):
         # Log de hiperparámetros
@@ -284,6 +305,7 @@ def main(
                 "num_workers": num_workers,
                 "label_col": label_col,
                 "augmentation": "torchvision_flip_colorjitter_rotate",
+                "early_stopping_patience": patience,
             }
         )
 
@@ -298,7 +320,7 @@ def main(
                 device=device,
             )
 
-            val_loss, val_acc = evaluate(
+            val_loss, val_acc, val_f1_macro, val_f1_weighted = evaluate(
                 model=model,
                 loader=val_loader,
                 criterion=criterion,
@@ -308,7 +330,8 @@ def main(
             logger.info(
                 f"Epoch {epoch}: "
                 f"train_loss={train_loss:.4f}, train_acc={train_acc:.4f}, "
-                f"val_loss={val_loss:.4f}, val_acc={val_acc:.4f}"
+                f"val_loss={val_loss:.4f}, val_acc={val_acc:.4f}, "
+                f"val_f1_macro={val_f1_macro:.4f}, val_f1_weighted={val_f1_weighted:.4f}"
             )
 
             mlflow.log_metrics(
@@ -317,14 +340,18 @@ def main(
                     "train_acc": train_acc,
                     "val_loss": val_loss,
                     "val_acc": val_acc,
+                    "val_f1_macro": val_f1_macro,
+                    "val_f1_weighted": val_f1_weighted,
                 },
                 step=epoch,
             )
 
-            if val_acc > best_val_acc:
-                best_val_acc = val_acc
+            # 🔹 Early stopping por val_loss (mínimo)
+            if val_loss < best_val_loss:
+                best_val_loss = val_loss
+                epochs_no_improve = 0
                 logger.info(
-                    f"New best val_acc={best_val_acc:.4f}, saving model to {model_output_path}"
+                    f"New best val_loss={best_val_loss:.4f}, saving model to {model_output_path}"
                 )
                 state = {
                     "model_state_dict": model.state_dict(),
@@ -333,6 +360,24 @@ def main(
                     "label_col": label_col,
                 }
                 torch.save(state, model_output_path)
+            else:
+                epochs_no_improve += 1
+                logger.info(
+                    f"No improvement in val_loss for {epochs_no_improve} epoch(s). "
+                    f"Patience = {patience}."
+                )
+
+            # Condición de corte
+            if epochs_no_improve >= patience:
+                logger.info(
+                    f"Early stopping triggered after {epochs_no_improve} epochs sin mejora "
+                    f"en val_loss. Best val_loss={best_val_loss:.4f}."
+                )
+                break
+
+        # 🔹 Recargar el mejor modelo antes de loguearlo en MLflow
+        best_state = torch.load(model_output_path, map_location=device)
+        model.load_state_dict(best_state["model_state_dict"])
 
         mlflow.pytorch.log_model(model, artifact_path="model")
 

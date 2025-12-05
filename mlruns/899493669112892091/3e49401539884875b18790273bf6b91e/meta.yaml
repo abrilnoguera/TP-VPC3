@@ -1,0 +1,14 @@
+artifact_uri: file:///C:/importante/Master/VC3/TP-VPC3/mlruns/899493669112892091/3e49401539884875b18790273bf6b91e/artifacts
+end_time: 1764900686825
+entry_point_name: ''
+experiment_id: '899493669112892091'
+lifecycle_stage: active
+run_id: 3e49401539884875b18790273bf6b91e
+run_name: vit_articleType_aug
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1764891099503
+status: 3
+tags: []
+user_id: laum_

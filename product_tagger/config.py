@@ -46,7 +46,7 @@ import mlflow
 # Nombre de experimento: NUEVO para vos, para no reutilizar los meta.yaml viejos
 MLFLOW_EXPERIMENT_NAME = os.getenv(
     "MLFLOW_EXPERIMENT_NAME",
-    "vit_aug_v1",
+    "vit_aug_loss",
 )
 
 # Tracking URI:
