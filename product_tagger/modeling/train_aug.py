@@ -37,7 +37,7 @@ def build_dataloaders_with_augmentation(
     batch_size: int = 32,
     num_workers: int = 0,
 ) -> Tuple[DataLoader, DataLoader, Dict[str, int]]:
-    # Primero cargamos el CSV de train para construir el mapping clase -> índice
+    
     tmp_dataset = ImageDataset(
         csv_path=train_csv,
         images_dir=train_images_dir,
@@ -46,12 +46,10 @@ def build_dataloaders_with_augmentation(
     )
     train_df = tmp_dataset.data
 
-    # Mapeo estable clase -> índice
     classes = sorted(train_df[label_col].unique())
     class_to_idx = {cls: idx for idx, cls in enumerate(classes)}
     logger.info(f"Detected {len(classes)} classes.")
 
-    # --- 🔥 Data augmentation para TRAIN ---
     train_transform = transforms.Compose(
         [
             transforms.Resize((image_size, image_size)),
@@ -209,12 +207,7 @@ def main(
     device_str: str = "auto",
     patience: int = 5,
 ):
-    """
-    Entrena un ViT con data augmentation y MLflow.
-    Basado en tu train.py original, pero usando transforms con augmentations.
-    """
 
-    # Configuración reproducible / dispositivo
     torch.manual_seed(seed)
     if torch.cuda.is_available():
         torch.cuda.manual_seed_all(seed)
@@ -246,7 +239,6 @@ def main(
 
     model, meta = create_vit_model_v2(num_classes=num_classes, pretrained=True)
 
-    # Fallbacks estándar de ImageNet (válidos para ViT_B_16_Weights.IMAGENET1K_V1)
     default_mean = [0.485, 0.456, 0.406]
     default_std = [0.229, 0.224, 0.225]
     default_size = 224
@@ -346,7 +338,6 @@ def main(
                 step=epoch,
             )
 
-            # 🔹 Early stopping por val_loss (mínimo)
             if val_loss < best_val_loss:
                 best_val_loss = val_loss
                 epochs_no_improve = 0
@@ -375,7 +366,6 @@ def main(
                 )
                 break
 
-        # 🔹 Recargar el mejor modelo antes de loguearlo en MLflow
         best_state = torch.load(model_output_path, map_location=device)
         model.load_state_dict(best_state["model_state_dict"])
 
