@@ -68,3 +68,45 @@ def create_vit_model(
     return model, {"mean": mean, "std": std, "image_size": image_size}
 
 
+def create_vit_model_v2(
+    num_classes: int,
+    pretrained: bool = True,
+) -> Tuple[nn.Module, Dict]:
+    """
+    Variante que devuelve el meta dict aunque torchvision no lo provea.
+    """
+
+    default_mean = (0.485, 0.456, 0.406)
+    default_std = (0.229, 0.224, 0.225)
+    default_size = 224
+
+    if pretrained:
+        weights = ViT_B_16_Weights.DEFAULT
+        model = vit_b_16(weights=weights)
+        meta_raw = getattr(weights, "meta", {}) or {}
+
+        if isinstance(meta_raw, dict):
+            mean = tuple(meta_raw.get("mean", default_mean))
+            std = tuple(meta_raw.get("std", default_std))
+            image_size = meta_raw.get("image_size", default_size)
+        else:
+            mean = default_mean
+            std = default_std
+            image_size = default_size
+    else:
+        model = vit_b_16(weights=None)
+        mean = default_mean
+        std = default_std
+        image_size = default_size
+
+    if isinstance(image_size, (tuple, list)):
+        image_size = image_size[0]
+
+    in_features = model.heads.head.in_features
+    model.heads.head = nn.Linear(in_features, num_classes)
+
+    logger.info(f"Created ViT-B/16 model v2 with {num_classes} output classes.")
+
+    return model, {"mean": mean, "std": std, "image_size": image_size}
+
+
