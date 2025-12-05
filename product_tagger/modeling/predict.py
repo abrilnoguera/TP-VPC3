@@ -25,7 +25,14 @@ def main(
     device_str: str = "auto",
 ):
     """
-    Realiza inferencia sobre el split de test utilizando el modelo ViT entrenado.
+    Ejecuta el pipeline de inferencia sobre el split de test.
+
+    - Carga el checkpoint entrenado de ViT (pesos, `class_to_idx` y meta).
+    - Reconstruye el modelo con el mismo número de clases.
+    - Prepara un `ImageDataset` de test con las mismas transformaciones de
+      normalización usadas en entrenamiento.
+    - Genera predicciones para cada imagen y guarda un CSV con
+      `id`, índice de clase predicho y etiqueta textual.
     """
 
     if device_str == "auto":

@@ -33,6 +33,17 @@ def build_dataloaders(
     batch_size: int = 32,
     num_workers: int = 4,
 ) -> Tuple[DataLoader, DataLoader, Dict[str, int]]:
+    """
+    Construye los DataLoaders de entrenamiento y validación a partir de los CSV
+    procesados y las carpetas de imágenes.
+
+    - Lee el CSV de entrenamiento para inferir el conjunto de clases y crear
+      un mapeo estable clase -> índice entero (`class_to_idx`).
+    - Instancia dos `ImageDataset` (train y val) que aplican las
+      transformaciones de entrada y convierten las etiquetas a índices.
+    - Devuelve DataLoaders listos para usar en el loop de entrenamiento.
+    """
+
     train_df = ImageDataset(
         csv_path=train_csv,
         images_dir=train_images_dir,
@@ -92,6 +103,13 @@ def train_one_epoch(
     optimizer: optim.Optimizer,
     device: torch.device,
 ) -> Tuple[float, float]:
+    """
+    Ejecuta una época completa de entrenamiento sobre un DataLoader.
+
+    Recorre todos los batches del conjunto de entrenamiento, calcula la
+    pérdida, realiza backpropagation y acumula métricas de `loss` y
+    `accuracy` promedio.
+    """
     model.train()
     running_loss = 0.0
     correct = 0
@@ -123,6 +141,12 @@ def evaluate(
     criterion: nn.Module,
     device: torch.device,
 ) -> Tuple[float, float]:
+    """
+    Evalúa el modelo sobre un DataLoader sin actualizar los pesos.
+
+    Se utiliza típicamente para el conjunto de validación, calculando
+    la pérdida y la `accuracy` promedio de la época.
+    """
     model.eval()
     running_loss = 0.0
     correct = 0

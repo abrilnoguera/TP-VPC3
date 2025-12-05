@@ -64,6 +64,21 @@ create_environment:
 data: requirements
 	$(PYTHON_INTERPRETER) product_tagger/dataset.py
 
+## Run full data pipeline (dataset + EDA + splits + prepared images)
+.PHONY: pipeline
+pipeline: requirements
+	$(PYTHON_INTERPRETER) -m product_tagger.pipeline
+
+## Train ViT model for articleType classification
+.PHONY: train
+train: requirements
+	$(PYTHON_INTERPRETER) -m product_tagger.modeling.train
+
+## Run inference on test split with trained model
+.PHONY: predict
+predict: requirements
+	$(PYTHON_INTERPRETER) -m product_tagger.modeling.predict
+
 
 #################################################################################
 # Self Documenting Commands                                                     #
