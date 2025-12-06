@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (TeX Live 2025) (preloaded format=pdflatex 2025.10.14)  24 NOV 2025 18:41
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (TeX Live 2025) (preloaded format=pdflatex 2025.10.14)  5 DEC 2025 22:39
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -751,7 +751,7 @@ LaTeX Info: Redefining \. on input line 17.
 LaTeX Info: Redefining \% on input line 17.
 Package babel Info: 'spanish' activates 'spanish' shorthands.
 (babel)             Reported on input line 17.
- (./Chapters/Chapter1.aux) (./Chapters/Chapter2.aux) (./Chapters/Chapter3.aux) (./Appendices/AppendixA.aux))
+ (./Chapters/Chapter1.aux) (./Chapters/Chapter2.aux) (./Chapters/Chapter3.aux) (./Chapters/Chapter4.aux) (./Appendices/AppendixA.aux))
 \openout1 = `memorianueva.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 65.
@@ -903,7 +903,7 @@ LaTeX Font Info:    Font shape `T1/phv/m/it' in size <10> not available
 (Font)              Font shape `T1/phv/m/sl' tried instead on input line 48.
 
 
-<Figures/fondo.pdf, id=88, 597.55246pt x 845.07718pt>
+<Figures/fondo.pdf, id=124, 597.55246pt x 845.07718pt>
 File: Figures/fondo.pdf Graphic file (type pdf)
 <use Figures/fondo.pdf>
 Package pdftex.def Info: Figures/fondo.pdf  used on input line 51.
@@ -997,53 +997,45 @@ Overfull \hbox (1.17314pt too wide) in paragraph at lines 19--20
 pdfTeX warning (ext4): destination with the same identifier (name{page.1}) has been already used, duplicate ignored
 <to be read again> 
                    \relax 
-l.24 
-      [1
+l.23 A
+      simismo, la necesidad de mantener el catÃ¡logo actualizado introduce c... [1
 
 
 ]
-Overfull \hbox (1.99797pt too wide) in paragraph at lines 36--37
-[]\T1/ppl/b/n/10.95 Mejor ex-pe-ri-en-cia de usuario: \T1/ppl/m/n/10.95 Catál-o-gos co-her-entes mejo-ran las búsquedas,
- []
 
-
-
-LaTeX Info: Redefining \. on input line 52.
-LaTeX Info: Redefining \% on input line 52.
+LaTeX Info: Redefining \. on input line 50.
+LaTeX Info: Redefining \% on input line 50.
 Package babel Info: 'spanish' activates 'spanish' shorthands.
-(babel)             Reported on input line 52.
+(babel)             Reported on input line 50.
 
 pdfTeX warning (ext4): destination with the same identifier (name{page.2}) has been already used, duplicate ignored
 <to be read again> 
                    \relax 
-l.52     \item E
-                ntrenar y validar el modelo mediante particiones estratifica... [2]
+l.50 
+      [2]
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <9> on input line 65.
+(Font)              <9> on input line 69.
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <5> on input line 65.
+(Font)              <5> on input line 69.
 )
 
 LaTeX Info: Redefining \. on input line 118.
 LaTeX Info: Redefining \% on input line 118.
 [3]
+
+LaTeX Info: Redefining \. on input line 118.
+LaTeX Info: Redefining \% on input line 118.
+[4]
 \openout2 = `Chapters/Chapter2.aux'.
 
  (./Chapters/Chapter2.tex
-
-[4
-
-
-
-
-]
 Cap\'{\i }tulo 2.
 
 Overfull \hbox (7.91066pt too wide) in paragraph at lines 5--6
 \T1/ppl/m/n/10.95 tomáti-co de pro-duc-tos. El ob-je-ti-vo del EDA es com-pren-der la es-truc-tura del dataset,
  []
 
-<figures/missing_values.png, id=206, 722.7pt x 433.62pt>
+<figures/missing_values.png, id=260, 722.7pt x 433.62pt>
 File: figures/missing_values.png Graphic file (type png)
 <use figures/missing_values.png>
 Package pdftex.def Info: figures/missing_values.png  used on input line 27.
@@ -1055,8 +1047,13 @@ Underfull \hbox (badness 2884) in paragraph at lines 28--28
 
 
 
-[5]
-<figures/class_distribution_articleType.png, id=213, 867.24pt x 433.62pt>
+[5
+
+
+
+
+]
+<figures/class_distribution_articleType.png, id=267, 867.24pt x 433.62pt>
 File: figures/class_distribution_articleType.png Graphic file (type png)
 <use figures/class_distribution_articleType.png>
 Package pdftex.def Info: figures/class_distribution_articleType.png  used on input line 40.
@@ -1066,7 +1063,7 @@ Overfull \hbox (1.5259pt too wide) in paragraph at lines 45--46
 []\T1/ppl/m/n/10.95 Patrones sim-i-lares se ob-ser-van en \T1/pcr/m/n/10.95 subCategory \T1/ppl/m/n/10.95 y \T1/pcr/m/n/10.95 masterCategory \T1/ppl/m/n/10.95 (fig-uras [][]2.3[][]
  []
 
-<figures/class_distribution_subCategory.png, id=216, 867.24pt x 433.62pt>
+<figures/class_distribution_subCategory.png, id=270, 867.24pt x 433.62pt>
 File: figures/class_distribution_subCategory.png Graphic file (type png)
 <use figures/class_distribution_subCategory.png>
 Package pdftex.def Info: figures/class_distribution_subCategory.png  used on input line 49.
@@ -1076,12 +1073,12 @@ Package pdftex.def Info: figures/class_distribution_subCategory.png  used on inp
 LaTeX Info: Redefining \. on input line 53.
 LaTeX Info: Redefining \% on input line 53.
 [6 <./figures/missing_values.png> <./figures/class_distribution_articleType.png>]
-<figures/class_distribution_masterCategory.png, id=223, 867.24pt x 433.62pt>
+<figures/class_distribution_masterCategory.png, id=277, 867.24pt x 433.62pt>
 File: figures/class_distribution_masterCategory.png Graphic file (type png)
 <use figures/class_distribution_masterCategory.png>
 Package pdftex.def Info: figures/class_distribution_masterCategory.png  used on input line 56.
 (pdftex.def)             Requested size: 389.80269pt x 194.90224pt.
-<figures/class_distribution_gender.png, id=225, 867.24pt x 433.62pt>
+<figures/class_distribution_gender.png, id=279, 867.24pt x 433.62pt>
 File: figures/class_distribution_gender.png Graphic file (type png)
 <use figures/class_distribution_gender.png>
 Package pdftex.def Info: figures/class_distribution_gender.png  used on input line 65.
@@ -1091,7 +1088,7 @@ Package pdftex.def Info: figures/class_distribution_gender.png  used on input li
 LaTeX Info: Redefining \. on input line 69.
 LaTeX Info: Redefining \% on input line 69.
 [7 <./figures/class_distribution_subCategory.png> <./figures/class_distribution_masterCategory.png>]
-<figures/random_samples.png, id=233, 1084.05pt x 722.7pt>
+<figures/random_samples.png, id=287, 1084.05pt x 722.7pt>
 File: figures/random_samples.png Graphic file (type png)
 <use figures/random_samples.png>
 Package pdftex.def Info: figures/random_samples.png  used on input line 78.
@@ -1105,7 +1102,7 @@ LaTeX Font Info:    Trying to load font information for TS1+ppl on input line 87
  (/Users/anoguera/Library/TinyTeX/texmf-dist/tex/latex/psnfss/ts1ppl.fd
 File: ts1ppl.fd 2001/06/04 font definitions for TS1/ppl.
 )
-<figures/image_quality.png, id=241, 1156.32pt x 867.24pt>
+<figures/image_quality.png, id=295, 1156.32pt x 867.24pt>
 File: figures/image_quality.png Graphic file (type png)
 <use figures/image_quality.png>
 Package pdftex.def Info: figures/image_quality.png  used on input line 106.
@@ -1160,21 +1157,84 @@ Overfull \hbox (0.96916pt too wide) in paragraph at lines 71--72
 
 LaTeX Info: Redefining \. on input line 73.
 LaTeX Info: Redefining \% on input line 73.
-[14])
+[14]
+Overfull \hbox (11.2256pt too wide) in paragraph at lines 93--94
+[]\T1/ppl/m/n/10.95 Para la tarea de clasi-fi-cación mul-ti-clase so-bre imá-genes de pro-duc-tos de e-commerce
+ []
+
+
+
+LaTeX Info: Redefining \. on input line 106.
+LaTeX Info: Redefining \% on input line 106.
+[15]
+Overfull \hbox (2.79625pt too wide) in paragraph at lines 106--107
+[]\T1/ppl/m/n/10.95 Adaptación al do-minio vi-su-al del dataset: Co-mo se men-cionó an-te-ri-or-mente,
+ []
+
+
+Overfull \hbox (13.77657pt too wide) in paragraph at lines 106--107
+\T1/ppl/m/n/10.95 el dataset ob-je-ti-vo para el en-tre-namien-to pertenece al do-minio del e-commerce.
+ []
+
+
+Overfull \hbox (6.69241pt too wide) in paragraph at lines 108--109
+\T1/ppl/m/n/10.95 aprovechar rep-re-senta-ciones gen-erales de al-to niv-el y re-alizar una adaptación
+ []
+
+
+Overfull \hbox (4.19624pt too wide) in paragraph at lines 108--109
+\T1/ppl/m/n/10.95 efi-ciente al do-minio es-pecí-fi-co con un número mod-er-a-do de epochs y tamaño
+ []
+
+)
 
 LaTeX Info: Redefining \. on input line 120.
 LaTeX Info: Redefining \% on input line 120.
-[15]
-\openout2 = `Appendices/AppendixA.aux'.
+[16]
+\openout2 = `Chapters/Chapter4.aux'.
 
- (./Appendices/AppendixA.tex
+ (./Chapters/Chapter4.tex
+Cap\'{\i }tulo 4.
 
-[16
+
+[17
 
 
 
 
 ]
+<figures/loss_curves.png, id=344, 1293.633pt x 354.123pt>
+File: figures/loss_curves.png Graphic file (type png)
+<use figures/loss_curves.png>
+Package pdftex.def Info: figures/loss_curves.png  used on input line 43.
+(pdftex.def)             Requested size: 389.80269pt x 106.70241pt.
+<figures/val_loss_comparison.png, id=346, 711.1368pt x 426.393pt>
+File: figures/val_loss_comparison.png Graphic file (type png)
+<use figures/val_loss_comparison.png>
+Package pdftex.def Info: figures/val_loss_comparison.png  used on input line 56.
+(pdftex.def)             Requested size: 389.80269pt x 233.72311pt.
+
+
+LaTeX Info: Redefining \. on input line 60.
+LaTeX Info: Redefining \% on input line 60.
+[18 <./figures/loss_curves.png>]
+<figures/attention_map.png, id=353, 347.6187pt x 364.2408pt>
+File: figures/attention_map.png Graphic file (type png)
+<use figures/attention_map.png>
+Package pdftex.def Info: figures/attention_map.png  used on input line 72.
+(pdftex.def)             Requested size: 253.36935pt x 265.48785pt.
+
+
+LaTeX Info: Redefining \. on input line 78.
+LaTeX Info: Redefining \% on input line 78.
+[19 <./figures/val_loss_comparison.png>])
+
+LaTeX Info: Redefining \. on input line 121.
+LaTeX Info: Redefining \% on input line 121.
+[20 <./figures/attention_map.png>]
+\openout2 = `Appendices/AppendixA.aux'.
+
+ (./Appendices/AppendixA.tex
 Ap\'{e}ndice A.
 
 Overfull \hbox (4.1181pt too wide) in paragraph at lines 16--16
@@ -1262,44 +1322,54 @@ Underfull \hbox (badness 10000) in paragraph at lines 31--31
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 40--40
+Underfull \hbox (badness 2600) in paragraph at lines 32--32
+[]|\T1/ppl/m/n/9 Hostear MLflow para
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 41--41
 []|\T1/ppl/m/n/9 Redactar Im-ple-
  []
 
 )
 
-[17]
+[21
 
-LaTeX Warning: Empty bibliography on input line 140.
+
+
+
+]
+
+LaTeX Warning: Empty bibliography on input line 139.
 
 (./memorianueva.aux (./portada.aux)
 LaTeX Info: Redefining \sptext on input line 17.
 LaTeX Info: Redefining \. on input line 17.
 LaTeX Info: Redefining \% on input line 17.
- (./Chapters/Chapter1.aux) (./Chapters/Chapter2.aux) (./Chapters/Chapter3.aux) (./Appendices/AppendixA.aux))
+ (./Chapters/Chapter1.aux) (./Chapters/Chapter2.aux) (./Chapters/Chapter3.aux) (./Chapters/Chapter4.aux) (./Appendices/AppendixA.aux))
  ***********
 LaTeX2e <2025-06-01> patch level 1
 L3 programming layer <2020/03/25>
  ***********
 Package rerunfilecheck Info: File `memorianueva.out' has not changed.
-(rerunfilecheck)             Checksum: 76DDD3A50AECFD1E95C7675BF00D45DF;3895.
+(rerunfilecheck)             Checksum: A8F983BFE71DEC91A53066FF8D97FD3E;5589.
 Package logreq Info: Writing requests to 'memorianueva.run.xml'.
 \openout1 = `memorianueva.run.xml'.
 
  ) 
 Here is how much of TeX's memory you used:
- 31685 strings out of 469729
- 674214 string characters out of 5476491
- 1516421 words of memory out of 5000000
- 59649 multiletter control sequences out of 15000+600000
- 685957 words of font info for 112 fonts, out of 8000000 for 9000
+ 31767 strings out of 469729
+ 676197 string characters out of 5476491
+ 1521382 words of memory out of 5000000
+ 59705 multiletter control sequences out of 15000+600000
+ 689890 words of font info for 117 fonts, out of 8000000 for 9000
  15 hyphenation exceptions out of 8191
  95i,20n,93p,2024b,2010s stack positions out of 10000i,1000n,20000p,200000b,200000s
-</Users/anoguera/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></Users/anoguera/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></Users/anoguera/Library/TinyTeX/texmf-dist/fonts/type1/urw/courier/ucrr8a.pfb></Users/anoguera/Library/TinyTeX/texmf-dist/fonts/type1/urw/helvetic/uhvb8a.pfb></Users/anoguera/Library/TinyTeX/texmf-dist/fonts/type1/urw/helvetic/uhvr8a.pfb></Users/anoguera/Library/TinyTeX/texmf-dist/fonts/type1/urw/helvetic/uhvro8a.pfb></Users/anoguera/Library/TinyTeX/texmf-dist/fonts/type1/urw/palatino/uplb8a.pfb></Users/anoguera/Library/TinyTeX/texmf-dist/fonts/type1/urw/palatino/uplr8a.pfb></Users/anoguera/Library/TinyTeX/texmf-dist/fonts/type1/urw/palatino/uplr8a.pfb></Users/anoguera/Library/TinyTeX/texmf-dist/fonts/type1/urw/palatino/uplri8a.pfb>
-Output written on memorianueva.pdf (27 pages, 1328450 bytes).
+</Users/anoguera/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></Users/anoguera/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></Users/anoguera/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></Users/anoguera/Library/TinyTeX/texmf-dist/fonts/type1/urw/courier/ucrr8a.pfb></Users/anoguera/Library/TinyTeX/texmf-dist/fonts/type1/urw/helvetic/uhvb8a.pfb></Users/anoguera/Library/TinyTeX/texmf-dist/fonts/type1/urw/helvetic/uhvr8a.pfb></Users/anoguera/Library/TinyTeX/texmf-dist/fonts/type1/urw/helvetic/uhvro8a.pfb></Users/anoguera/Library/TinyTeX/texmf-dist/fonts/type1/urw/palatino/uplb8a.pfb></Users/anoguera/Library/TinyTeX/texmf-dist/fonts/type1/urw/palatino/uplr8a.pfb></Users/anoguera/Library/TinyTeX/texmf-dist/fonts/type1/urw/palatino/uplr8a.pfb></Users/anoguera/Library/TinyTeX/texmf-dist/fonts/type1/urw/palatino/uplri8a.pfb>
+Output written on memorianueva.pdf (31 pages, 1671275 bytes).
 PDF statistics:
- 347 PDF objects out of 1000 (max. 8388607)
- 277 compressed objects within 3 object streams
- 62 named destinations out of 1000 (max. 500000)
- 209 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 438 PDF objects out of 1000 (max. 8388607)
+ 355 compressed objects within 4 object streams
+ 79 named destinations out of 1000 (max. 500000)
+ 296 words of extra memory for PDF output out of 10000 (max. 10000000)
 

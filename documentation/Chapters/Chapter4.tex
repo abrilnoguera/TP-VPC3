@@ -1,15 +1,88 @@
-% Chapter Template
+\chapter{Resultados y Conclusiones}
 
-\chapter{Ensayos y resultados} % Main chapter title
-
-\label{Chapter4} % Change X to a consecutive number; for referencing this chapter elsewhere, use \ref{ChapterX}
-Todos los capítulos deben comenzar con un breve párrafo introductorio que indique cuál es el contenido que se encontrará al leerlo.  La redacción sobre el contenido de la memoria debe hacerse en presente y todo lo referido al proyecto en pasado, siempre de modo impersonal.
+Este capítulo presenta los resultados obtenidos durante el entrenamiento y evaluación del modelo, analiza el desempeño en el conjunto de \textit{test} e interpreta las métricas asociadas. Asimismo, se estudia el comportamiento del modelo durante el entrenamiento, incluyendo la comparación entre distintas configuraciones experimentales y el análisis de mapas de atención. Finalmente, se discuten las principales limitaciones del enfoque y se proponen líneas futuras de trabajo.
 
 %----------------------------------------------------------------------------------------
-%	SECTION 1
+\section{Resultados}
+
+La tabla~\ref{tab:test_metrics} resume el desempeño del modelo en el conjunto de \textit{test}. Las métricas reportadas permiten evaluar no sólo el rendimiento global, sino también la estabilidad del comportamiento entre clases, aspecto crítico en contextos donde existen distribuciones desbalanceadas.
+
+\begin{table}[H]
+    \centering
+    \caption{Métricas de desempeño del modelo en el conjunto de \textit{test}.}
+    \label{tab:test_metrics}
+    \begin{tabular}{l c}
+        \toprule
+        \textbf{Métrica} & \textbf{Valor} \\
+        \midrule
+        Accuracy                & 0.8370 \\
+        F1 Macro                & 0.5565 \\
+        F1 Weighted             & 0.8269 \\
+        Precision Macro         & 0.6167 \\
+        Precision Weighted      & 0.8317 \\
+        Recall Macro            & 0.5467 \\
+        Recall Weighted         & 0.8370 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+El modelo muestra un desempeño global sólido, con un \textit{accuracy} de 0.837. Sin embargo, el valor de \textit{F1 Macro} (0.556) revela que dicho rendimiento no es uniforme entre las distintas clases, afectado principalmente por la baja representación de algunas categorías. Por su parte, las métricas ponderadas (\textit{F1 Weighted}, \textit{Precision Weighted}, \textit{Recall Weighted}) indican un comportamiento muy adecuado para las clases mayoritarias.
+
+En conjunto, estos resultados sugieren que el modelo aprende de manera eficaz para las clases frecuentes, pero presenta limitaciones para aquellas con menor soporte. Técnicas adicionales como aumentación intensiva, \textit{oversampling} o un mayor número de épocas de entrenamiento podrían contribuir a mitigar este efecto.
+
 %----------------------------------------------------------------------------------------
+\section{Conclusiones}
 
-\section{Pruebas funcionales del hardware}
-\label{sec:pruebasHW}
+\subsection{Entrenamiento y validación}
 
-La idea de esta sección es explicar cómo se hicieron los ensayos, qué resultados se obtuvieron y analizarlos.
+Antes de analizar las métricas de \textit{test}, resulta informativo estudiar la evolución del entrenamiento.  
+La figura~\ref{fig:loss_curves} presenta las curvas de pérdida para los tres experimentos considerados, permitiendo observar el comportamiento comparativo entre entrenamientos con y sin aumentación de datos.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figures/loss_curves.png}
+    \caption{Evolución de \textit{train loss} y \textit{validation loss} para los distintos experimentos.}
+    \label{fig:loss_curves}
+\end{figure}
+
+El experimento sin aumentación (\texttt{vit\_articleType\_no\_aug}) muestra un descenso rápido del \textit{train loss} mientras la pérdida en validación se vuelve inestable, evidenciando sobreajuste temprano.  
+En contraste, las variantes con aumentación presentan curvas más estables y menor pérdida en validación, lo que sugiere mejor capacidad de generalización.  
+Entre ellas, \texttt{vit\_aug\_loss} resulta más consistente al seleccionar el mejor modelo según \textit{val loss}, mientras que \texttt{vit\_aug\_v1} utiliza \textit{accuracy}, un criterio menos adecuado para minimizar la pérdida en validación.
+
+La figura~\ref{fig:val_loss_comparison} muestra de manera directa la comparación entre las pérdidas de validación para los tres entrenamientos.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figures/val_loss_comparison.png}
+    \caption{Comparación del \textit{validation loss} entre los experimentos evaluados.}
+    \label{fig:val_loss_comparison}
+\end{figure}
+
+La comparación confirma que las variantes con aumentación convergen a valores de pérdida más bajos y estables, destacándose nuevamente la configuración \texttt{vit\_aug\_loss}.
+
+%----------------------------------------------------------------------------------------
+\subsection{Análisis de mapas de atención}
+
+La figura~\ref{fig:attention_map} muestra un mapa de atención generado para una imagen del conjunto de prueba. En este caso, el modelo concentra su activación en los bordes del producto, que contienen información de forma relevante para la clasificación, mientras ignora eficazmente el fondo. Esto sugiere que el mecanismo de atención está capturando patrones significativos y descartando ruido.
+
+Sin embargo, parte de la atención también se distribuye sobre zonas que no aportan información esencial (por ejemplo, partes del cuerpo humano presentes en la imagen). Esto indica que el modelo, si bien aprende a identificar regiones útiles, aún asigna recursos a áreas secundarias, lo que podría introducir cierta ineficiencia o ruido en la representación interna.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.65\textwidth]{figures/attention_map.png}
+    \caption{
+        Ejemplo de mapa de atención generado por el modelo.
+    }
+    \label{fig:attention_map}
+\end{figure}
+
+%----------------------------------------------------------------------------------------
+\subsection{Limitaciones y recomendaciones finales}
+
+El modelo fue entrenado durante 10 épocas, lo cual es suficiente para observar patrones de comportamiento, pero probablemente insuficiente para alcanzar su máximo potencial. Entrenamientos más largos permitirían evaluar si la arquitectura continúa mejorando o eventualmente sobreajusta.
+
+Por otro lado, sería recomendable comparar este modelo con otras arquitecturas (p. ej., variantes más grandes de Vision Transformers, modelos híbridos o redes convolucionales profundas) para determinar si el desempeño observado es representativo o si otras alternativas podrían superar estos resultados.
+
+Desde una perspectiva de ingeniería de producto, una línea de mejora natural sería la construcción de un \textit{pipeline} de entrenamiento continuo, capaz de incorporar nuevos datos de forma incremental y desplegar actualizaciones del modelo sin intervención manual. Esto permitiría mantener el sistema alineado con cambios en la distribución de los datos o en las categorías del catálogo.
+
+Finalmente, las limitaciones computacionales del entorno local condicionaron el tamaño de los lotes, la duración de los entrenamientos y la exploración de hiperparámetros. El acceso a infraestructura con mayor capacidad de cómputo permitiría realizar experimentos más exhaustivos y evaluar configuraciones más complejas, con potencial para mejorar significativamente el desempeño del modelo.

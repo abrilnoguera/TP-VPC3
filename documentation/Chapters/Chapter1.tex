@@ -16,28 +16,32 @@ El proyecto desarrollado surgió a partir de esta necesidad: se implementó un s
 %----------------------------------------------------------------------------------------
 \section{Caso de negocio}
 
-El crecimiento acelerado del comercio electrónico ha generado catálogos con miles de productos que requieren actualización constante. En este contexto, la correcta clasificación y etiquetado de imágenes es un proceso crítico: determina cómo los productos se muestran, cómo se encuentran mediante búsquedas internas y cómo son recomendados por los motores de recomendación. Sin embargo, este proceso suele realizarse de manera manual, lo que introduce varias limitaciones operativas.
+El crecimiento acelerado del comercio electrónico ha generado catálogos con miles de productos que requieren actualización constante. Entre las tareas fundamentales para mantener dichos catálogos se encuentra la correcta clasificación del tipo de artículo, información que determina cómo se organiza la oferta, cómo se indexan los productos y cómo se distribuyen en categorías de navegación. Este proceso, aunque aparentemente simple, suele realizarse de manera manual en muchas organizaciones.
 
-En primer lugar, el etiquetado manual implica costos elevados en horas-hombre, particularmente en empresas que gestionan catálogos dinámicos donde ingresan cientos o miles de productos nuevos por semana. En segundo lugar, este proceso presenta altos niveles de inconsistencia debido a la subjetividad de los operadores: productos similares pueden recibir etiquetas distintas o incompletas, lo que perjudica la calidad del catálogo. Además, el tiempo requerido para clasificar grandes volúmenes genera cuellos de botella que ralentizan el lanzamiento de nuevos productos.
+El etiquetado manual presenta varias limitaciones operativas. Por un lado, implica costos significativos en horas-hombre, especialmente en contextos donde ingresan grandes volúmenes de productos nuevos cada semana. Por otro lado, el proceso es inherentemente subjetivo: diferentes operadores pueden asignar tipos de artículos distintos a productos similares, generando inconsistencias que afectan la estructura del catálogo. Estas inconsistencias impactan negativamente en la experiencia del usuario, dificultan la búsqueda y navegación, y pueden incluso comprometer sistemas internos que dependen de categorías confiables, como motores de recomendación o módulos de analítica.
 
-Las consecuencias de un etiquetado deficiente se reflejan en múltiples áreas del negocio. Un producto mal clasificado puede no aparecer en las búsquedas relevantes, reducir su tasa de conversión o ser excluido de sistemas automáticos de recomendación, impactando directamente en ventas. Asimismo, un catálogo inconsistente genera fricción en la navegación del usuario, lo que disminuye la satisfacción y deteriora la percepción de calidad del sitio.
+Asimismo, la necesidad de mantener el catálogo actualizado introduce cuellos de botella cuando el volumen de imágenes supera la capacidad del equipo encargado del etiquetado. Esto retrasa la publicación de nuevos productos y limita la agilidad comercial de la plataforma.
 
-En este contexto, resulta necesario contar con un sistema automático capaz de identificar atributos visuales de manera rápida, coherente y escalable. El presente proyecto se enmarca en esta problemática, evaluando la capacidad de modelos basados en \textit{Vision Transformers} para realizar un etiquetado automático y confiable de productos de moda a partir de sus imágenes.
+En este contexto, se vuelve necesario un sistema automático, confiable y escalable que permita clasificar de manera precisa el tipo de artículo a partir de una imagen. El presente proyecto se enmarca en esta problemática y evalúa la capacidad de modelos basados en \textit{Vision Transformers} para automatizar la clasificación de \textit{articleType} a partir de imágenes de productos de moda.
 
 %----------------------------------------------------------------------------------------
 \section{Propuesta de valor}
 
-El sistema desarrollado busca reemplazar o complementar el etiquetado manual mediante un modelo de visión por computadora capaz de asignar automáticamente atributos clave como categoría, tipo, color y género del producto. Esta automatización agrega valor en distintos niveles:
+El sistema desarrollado automatiza la clasificación del tipo de artículo utilizando un modelo de visión por computadora basado en \textit{Vision Transformers}. Aunque la tarea se concentra exclusivamente en este atributo, su correcta automatización aporta valor significativo al proceso de gestión de catálogos:
 
 \begin{itemize}
-    \item \textbf{Reducción de costos operativos:} Disminuye la necesidad de intervención humana, especialmente en etapas iniciales de carga masiva de catálogo.
-    \item \textbf{Consistencia y estandarización:} El modelo aplica criterios homogéneos sin variación entre operadores, reduciendo errores y ambigüedades.
-    \item \textbf{Mayor velocidad de procesamiento:} La clasificación automática permite acelerar el tiempo desde la recepción del producto hasta su publicación en el catálogo.
-    \item \textbf{Mejor experiencia de usuario:} Catálogos coherentes mejoran las búsquedas, la navegación y la relevancia de las recomendaciones.
-    \item \textbf{Escalabilidad:} El sistema puede procesar miles de imágenes sin aumentar el costo marginal, algo imposible con procesos manuales.
+    \item \textbf{Reducción de costos operativos:} Elimina gran parte del trabajo manual asociado al etiquetado inicial de productos, disminuyendo el uso de recursos humanos en tareas repetitivas.
+    
+    \item \textbf{Consistencia en la categorización:} El modelo aplica criterios uniformes, evitando la variabilidad entre operadores y garantizando una estructura de catálogo más coherente.
+    
+    \item \textbf{Agilidad en la carga de productos:} La clasificación automática permite acelerar el flujo de incorporación de nuevos artículos, reduciendo el tiempo entre la disponibilidad del producto y su publicación efectiva.
+    
+    \item \textbf{Mejor organización del catálogo:} Una clasificación precisa de \textit{articleType} mejora la navegación, la indexación y la calidad de los filtros disponibles para los usuarios.
+    
+    \item \textbf{Escalabilidad operativa:} El sistema puede procesar miles de imágenes de manera eficiente sin requerir aumentos proporcionales en la dotación de personal.
 \end{itemize}
 
-En conjunto, la propuesta de valor consiste en un pipeline automatizado capaz de fortalecer la calidad del catálogo digital y optimizar procesos internos, alineándose con prácticas modernas de comercio electrónico basadas en datos y automatización inteligente.
+Así, la propuesta de valor se centra en un componente puntual pero fundamental del catálogo: la clasificación del tipo de artículo. Automatizar esta etapa contribuye directamente a la eficiencia operativa, la calidad del contenido y la experiencia del usuario, alineándose con las necesidades de plataformas de comercio electrónico modernas.
 
 %----------------------------------------------------------------------------------------
 \section{Objetivos y alcance}
@@ -50,7 +54,7 @@ En términos más específicos, el trabajo se propuso:
     \item Construir un pipeline reproducible de procesamiento de datos que incluyera la descarga, validación y limpieza del dataset original.
     \item Implementar un modelo de clasificación multi-etiqueta basado en \textit{Vision Transformers}, adaptado a las características del dataset.
     \item Entrenar y validar el modelo mediante particiones estratificadas, asegurando una evaluación equilibrada de las distintas clases.
-    \item Analizar el desempeño del modelo utilizando métricas estandarizadas como \textit{accuracy}, F1 y \textit{mean Average Precision} (mAP).
+    \item Analizar el desempeño del modelo utilizando métricas estandarizadas como \textit{accuracy}, F1, \textit{precision} y \textit{recall}.
     \item Examinar los errores y sesgos presentes en las predicciones, identificando limitaciones del enfoque.
     \item Desarrollar una herramienta de inferencia que permitiera aplicar el modelo a nuevas imágenes en un entorno práctico.
 \end{itemize}
