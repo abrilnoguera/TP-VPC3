@@ -1,4 +1,4 @@
-artifact_uri: file:///Users/pedrobarrera/TP-VPC3/mlruns/747011836454282246/b4fd048ee13f4f0a8bd0912fc0c166fa/artifacts
+artifact_uri: file:///C:/importante/Master/VC3/TP-VPC3/mlruns/899493669112892091
 end_time: 1764959646026
 entry_point_name: ''
 experiment_id: '747011836454282246'
@@ -12,3 +12,5 @@ start_time: 1764955409633
 status: 3
 tags: []
 user_id: pedro
+
+
