@@ -127,6 +127,42 @@ This runs `python -m product_tagger.modeling.predict`, loading `models/vit_artic
 
 It also logs test metrics and artifacts to MLflow.
 
+### 5. Export model to ONNX
+
+After you have a successful training run in MLflow (visible in the UI), you can export the
+corresponding PyTorch model to ONNX and attach it as an additional artifact to the same run.
+
+From the project root, with your environment activated and replacing `<RUN_ID>` with a real
+run id from MLflow:
+
+```bash
+python -m product_tagger.onnx.addonnx --run-id <RUN_ID>
+```
+
+Useful options:
+
+- **`--model-artifact-path`**: artifact path inside the run where the PyTorch model is stored (default: `model`).
+- **`--output-path`**: where to write the ONNX file (default: `product_tagger/onnx/model_export.onnx`).
+- **`--batch`, `--channels`, `--height`, `--width`**: shape of the dummy input used for export.
+- **`--opset-version`**: ONNX opset version (default: 17).
+
+### 6. Check ONNX vs PyTorch consistency
+
+To verify that the ONNX export produces numerically similar outputs to the original PyTorch model,
+run the comparison CLI using the same `run_id` and the path to the exported ONNX file:
+
+```bash
+python -m product_tagger.onnx.onnx_vs_torch --run-id <RUN_ID>
+```
+
+Key options:
+
+- **`--model-artifact-path`**: artifact path inside the run where the PyTorch model is stored (default: `model`).
+- **`--onnx-path`**: path to the ONNX file (default: `product_tagger/onnx/model_export.onnx`).
+- **`--batch`, `--channels`, `--height`, `--width`**: shape of the dummy input used for the check.
+- **`--max-diff-ok`**: maximum allowed absolute difference between PyTorch and ONNX outputs
+  (default: `1e-4`; process exits with code 1 if exceeded).
+
 ## MLflow tracking UI
 
 The project is configured in `config.py` to use a local `mlruns` directory inside the repo as the MLflow tracking store
