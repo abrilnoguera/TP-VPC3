@@ -7,53 +7,62 @@
 A Vision Transformer–based system for automatic product attribute tagging to improve eCommerce catalog quality and reduce manual labeling effort.
 
 ## Project Organization
-
 ```
-├── LICENSE            <- Open-source license if one is chosen
-├── Makefile           <- Makefile with convenience commands like `make data` or `make train`
-├── README.md          <- The top-level README for developers using this project.
-├── data
-│   ├── external       <- Data from third party sources.
-│   ├── interim        <- Intermediate data that has been transformed.
-│   ├── processed      <- The final, canonical data sets for modeling.
-│   └── raw            <- The original, immutable data dump.
-│
-├── docs               <- A default mkdocs project; see www.mkdocs.org for details
-│
-├── models             <- Trained and serialized models, model predictions, or model summaries
-│
-├── notebooks          <- Jupyter notebooks. Naming convention is a number (for ordering),
-│                         the creator's initials, and a short `-` delimited description, e.g.
-│                         `1.0-jqp-initial-data-exploration`.
-│
-├── pyproject.toml     <- Project configuration file with package metadata for 
-│                         product_tagger and configuration for tools like black
-│
-├── references         <- Data dictionaries, manuals, and all other explanatory materials.
-│
-├── reports            <- Generated analysis as HTML, PDF, LaTeX, etc.
-│   └── figures        <- Generated graphics and figures to be used in reporting
-│
-├── requirements.txt   <- The requirements file for reproducing the analysis environment
-│
-├── setup.cfg          <- Configuration file for flake8
-│
-└── product_tagger   <- Source code for use in this project.
-    │
-    ├── __init__.py             <- Makes product_tagger a Python module
-    │
-    ├── config.py               <- Store useful variables and configuration
-    │
-    ├── dataset.py              <- Scripts to download or generate data
-    │
-    ├── features.py             <- Code to create features for modeling
-    │
-    ├── modeling                
-    │   ├── __init__.py 
-    │   ├── predict.py          <- Code to run model inference with trained models          
-    │   └── train.py            <- Script to train models (with optional augmentation)
-    │
-    └── plots.py                <- Code to create visualizations
+├── Makefile                 <- Convenience commands like `make data`, `make train`, etc.
+├── README.md                <- This file (project overview and instructions)
+├── pyproject.toml           <- Project configuration and packaging metadata
+├── requirements.txt         <- Pin/describe Python dependencies for reproducibility
+
+├── data/
+│   ├── raw/                 <- Original raw inputs (e.g. `raw/styles.csv`, raw images)
+│   └── processed/           <- Cleaned and split datasets used by training/eval
+│       ├── train.csv
+│       ├── val.csv
+│       ├── test.csv
+│       ├── test_predictions.csv
+│       ├── test_confusion_matrix.csv
+│       └── images/          <- Prepared images organized for `train`/`val`/`test`
+
+├── documentation/           <- LaTeX source used for documentation
+│   └── Informe.pdf         <- Project documentation
+
+├── mlruns/                  <- Local MLflow tracking store with experiment runs
+
+├── models/                  <- Exported model checkpoints and serialized artifacts
+
+├── notebooks/               <- Exploratory and analysis Jupyter notebooks
+
+├── onnx/                    <- Scripts and helpers to export/compare ONNX models
+
+├── product_tagger/          <- Main Python package containing project code
+│   ├── __init__.py
+│   ├── config.py            <- Configuration (paths, MLflow settings, constants)
+│   ├── data_loader.py       <- Helpers to load data and images
+│   ├── dataset.py           <- Dataset utilities and dataset classes
+│   ├── eda.py               <- Exploratory data analysis utilities
+│   ├── features.py          <- Feature engineering and transforms
+│   ├── genviz.py            <- Visualization helpers (for reporting / EDA)
+│   ├── pipeline.py          <- High-level data preparation pipeline
+│   ├── plots.py             <- Plotting helpers for reports and notebooks
+│   ├── prepare_images.py    <- Image preprocessing / augmentation helper scripts
+│   ├── split_dataset.py     <- Train/val/test split helpers
+│   ├── attention/           <- Attention visualization tools
+│   └── modeling/            <- Training and inference code
+│       ├── __init__.py
+│       ├── train.py         <- Training CLI (Typer) for Vision Transformer
+│       ├── predict.py       <- Inference CLI to run model predictions
+│       └── vit.py           <- Model definitions (ViT and helpers)
+
+├── references/              <- Data dictionaries, bibliographies, and references
+
+├── reports/                 <- Generated analysis outputs (PDFs, HTML, figures)
+│   └── figures/
+
+└── product_tagger/onnx_adds  <- (See `product_tagger/onnx`) helper scripts for ONNX
+
+Notes:
+- MLflow runs are stored under `mlruns/` in this repo by default (see `product_tagger/config.py`).
+- The `data/processed/images/` folder contains image datasets split into `train/`, `val/`, and `test/` subfolders used by the dataloaders.
 ```
 
 --------
