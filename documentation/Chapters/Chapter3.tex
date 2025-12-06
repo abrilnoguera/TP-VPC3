@@ -129,23 +129,23 @@ Una vez definido el modelo base, se implementó un \textit{pipeline} de entrenam
 
 \subsection{Función de pérdida}
 
-Para la tarea de clasificación multiclase sobre el atributo \texttt{articleType} se utilizó la función de pérdida \textbf{CrossEntropyLoss} de PyTorch. Esta elección es estándar en problemas donde cada imagen pertenece exactamente a una única clase entre $K$ posibles, y permite optimizar directamente la probabilidad de la clase correcta a partir de los \textit{logits} producidos por la \textit{classification head}.
+Para la tarea de clasificación multiclase se utilizó la función de pérdida \textbf{CrossEntropyLoss} de PyTorch. Esta elección es estándar en problemas donde cada imagen pertenece exactamente a una única clase entre $K$ posibles, y permite optimizar directamente la probabilidad de la clase correcta a partir de los \textit{logits} producidos por la \textit{classification head}.
 
 Inicialmente se consideró incorporar \textbf{ponderación por clase (\textit{class weighting})} para mitigar el desbalance observado en el atributo \texttt{articleType}. Sin embargo, se optó por comenzar con una configuración base sin pesos, utilizando en cambio métricas complementarias (F1 macro y F1 ponderado) para evaluar el impacto del desbalance. La incorporación de \textit{class weighting} se deja identificada como trabajo futuro para profundizar en la corrección de dicho desbalance sin introducir complejidad adicional en esta primera versión del sistema.
 
 \subsection{Optimizador y regularización}
 
-Como algoritmo de optimización se empleó \textbf{AdamW} con una tasa de aprendizaje inicial de $\text{lr} = 3 \times 10^{-4}$ y un término de \textit{weight decay} de $1 \times 10^{-4}$. La elección de \texttt{AdamW} se debe a que combina la adaptatividad de Adam (que ajusta de forma independiente la tasa de aprendizaje de cada parámetro) con una formulación de \textit{weight decay} desacoplada, lo que ha demostrado funcionar especialmente bien en \textit{Transformers} preentrenados.
+Como algoritmo de optimización se empleó \textbf{AdamW} con un \textit{learning rate} inicial de $\text{lr} = 3 \times 10^{-4}$ y un término de \textit{weight decay} de $1 \times 10^{-4}$. La elección de \texttt{AdamW} se debe a que combina la adaptatividad de Adam (que ajusta de forma independiente el \textit{learning rate} de cada parámetro) con una formulación de \textit{weight decay} desacoplada, lo que ha demostrado funcionar especialmente bien en \textit{Transformers} preentrenados.
 
 El valor de $\text{lr} = 3 \times 10^{-4}$ sigue las recomendaciones habituales para \textit{fine-tuning} de modelos preentrenados: lo suficientemente bajo como para no desestabilizar los pesos aprendidos en ImageNet, pero alto como para permitir la adaptación al nuevo dominio con un número limitado de épocas. El término de \textbf{weight decay = $1 \times 10^{-4}$} introduce una regularización L2 moderada que ayuda a evitar sobreajuste en un problema con más de 100 clases y tamaño de dataset acotado.
 
-\subsection{Scheduler de tasa de aprendizaje}
+\subsection{Scheduler de \textit{learning rate}}
 
-En la configuración actual no se empleó un \textit{scheduler} explícito de la tasa de aprendizaje. Se optó por mantener una tasa fija de $3 \times 10^{-4}$ durante todo el entrenamiento para simplificar el diseño experimental y poder aislar el efecto de otros componentes (data augmentation, \textit{early stopping}, etc.). En trabajos futuros se considera incorporar \textit{learning rate scheduling} (por ejemplo, \textit{cosine decay} o \textit{step decay}) para explorar mejoras adicionales de desempeño una vez fijada la configuración base.
+En la configuración actual no se empleó un \textit{scheduler} explícito del \textit{learning rate}. Se optó por mantener un \textit{learning rate} fijo de $3 \times 10^{-4}$ durante todo el entrenamiento para simplificar el diseño experimental y poder aislar el efecto de otros componentes (data augmentation, \textit{early stopping}, etc.). En trabajos futuros se considera incorporar \textit{learning rate scheduling} (por ejemplo, \textit{cosine decay} o \textit{step decay}) para explorar mejoras adicionales de desempeño una vez fijada la configuración base.
 
-\subsection{Número de épocas, tamaño de lote y \textit{early stopping}}
+\subsection{Número de épocas, \textit{batch size} y \textit{early stopping}}
 
-El entrenamiento se configuró con un máximo de \textbf{10 épocas} y un tamaño de lote de \textbf{32} imágenes. El tamaño de lote se eligió como compromiso entre el uso eficiente de la memoria GPU disponible, la estabilidad de las estimaciones de gradiente y un tiempo de entrenamiento razonable para iterar sobre distintos experimentos.
+El entrenamiento se configuró con un máximo de \textbf{10 épocas} y un \textit{batch size} de \textbf{32} imágenes. El \textit{batch size} se eligió como compromiso entre el uso eficiente de la memoria GPU disponible, la estabilidad de las estimaciones de gradiente y un tiempo de entrenamiento razonable para iterar sobre distintos experimentos.
 
 Dado que el modelo parte de pesos preentrenados, no se espera necesitar un número muy elevado de épocas para converger. Para evitar sobreajuste y entrenamientos innecesariamente largos, se implementó un mecanismo de \textbf{early stopping} monitorizando la pérdida de validación (\texttt{val\_loss}) con una paciencia de \textbf{5 épocas}. Si la pérdida de validación no mejora en cinco iteraciones consecutivas, el entrenamiento se detiene y se conserva el modelo con mejor desempeño observado.
 
