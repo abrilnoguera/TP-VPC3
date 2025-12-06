@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (TeX Live 2025) (preloaded format=pdflatex 2025.10.14)  5 DEC 2025 22:43
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (TeX Live 2025) (preloaded format=pdflatex 2025.10.14)  5 DEC 2025 22:54
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -1400,6 +1400,11 @@ Overfull \hbox (6.74832pt too wide) in paragraph at lines 36--37
  []
 
 
+Underfull \hbox (badness 10000) in paragraph at lines 37--37
+[]|\T1/ppl/m/n/9 Pedro y
+ []
+
+
 Overfull \hbox (6.74832pt too wide) in paragraph at lines 37--38
 []|\T1/ppl/m/n/9 Completado| 
  []
@@ -1422,6 +1427,11 @@ Overfull \hbox (6.74832pt too wide) in paragraph at lines 39--40
 
 Overfull \hbox (6.74832pt too wide) in paragraph at lines 40--41
 []|\T1/ppl/m/n/9 Completado| 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 41--41
+[]|\T1/ppl/m/n/9 Lautaro y
  []
 
 
@@ -1464,7 +1474,7 @@ Here is how much of TeX's memory you used:
  15 hyphenation exceptions out of 8191
  95i,20n,93p,2024b,2010s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </Users/anoguera/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></Users/anoguera/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></Users/anoguera/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></Users/anoguera/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></Users/anoguera/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></Users/anoguera/Library/TinyTeX/texmf-dist/fonts/type1/urw/courier/ucrr8a.pfb></Users/anoguera/Library/TinyTeX/texmf-dist/fonts/type1/urw/helvetic/uhvb8a.pfb></Users/anoguera/Library/TinyTeX/texmf-dist/fonts/type1/urw/helvetic/uhvr8a.pfb></Users/anoguera/Library/TinyTeX/texmf-dist/fonts/type1/urw/helvetic/uhvro8a.pfb></Users/anoguera/Library/TinyTeX/texmf-dist/fonts/type1/urw/palatino/uplb8a.pfb></Users/anoguera/Library/TinyTeX/texmf-dist/fonts/type1/urw/palatino/uplbi8a.pfb></Users/anoguera/Library/TinyTeX/texmf-dist/fonts/type1/urw/palatino/uplr8a.pfb></Users/anoguera/Library/TinyTeX/texmf-dist/fonts/type1/urw/palatino/uplr8a.pfb></Users/anoguera/Library/TinyTeX/texmf-dist/fonts/type1/urw/palatino/uplri8a.pfb>
-Output written on memorianueva.pdf (33 pages, 1708259 bytes).
+Output written on memorianueva.pdf (33 pages, 1708279 bytes).
 PDF statistics:
  500 PDF objects out of 1000 (max. 8388607)
  408 compressed objects within 5 object streams
